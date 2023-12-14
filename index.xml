@@ -7,6 +7,26 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2023 </copyright>
-    <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 13 Dec 2023 17:59:53 +0800</lastBuildDate><atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>description</title>
+      <link>http://example.org/myself/</link>
+      <pubDate>Wed, 13 Dec 2023 17:59:53 +0800</pubDate>
+      
+      <guid>http://example.org/myself/</guid>
+      <description>MySelf # 我是一个脑洞大开的人，老是想着做很高级的事情，其实自己连小事情都做不好:smile: 我最近老想过去的事情，感觉自己很傻:smile: If you want to chat with me, email to me:smile: easytojoin@163.com</description>
+      
+    </item>
+    
+    <item>
+      <title>Skil</title>
+      <link>http://example.org/posts/skil/</link>
+      <pubDate>Wed, 13 Dec 2023 17:59:53 +0800</pubDate>
+      
+      <guid>http://example.org/posts/skil/</guid>
+      <description> Socket,TCP,UDP RTP/RTMP/DASH/FLV H264/AAC/H264 WebRTC ffmpeg nginx,mysql,redis,memcached,thrift,grpc C++11,C++20,OOP,Design pattern </description>
+      
+    </item>
+    
   </channel>
 </rss>
