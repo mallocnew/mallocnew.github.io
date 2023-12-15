@@ -7,7 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>© 2023 </copyright>
-    <lastBuildDate>Wed, 13 Dec 2023 17:59:53 +0800</lastBuildDate><atom:link href="http://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 15 Dec 2023 14:39:15 +0800</lastBuildDate><atom:link href="http://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>gRpc</title>
+      <link>http://example.org/posts/grpc/</link>
+      <pubDate>Fri, 15 Dec 2023 14:39:15 +0800</pubDate>
+      
+      <guid>http://example.org/posts/grpc/</guid>
+      <description>介绍 # gRPC 是开源的远程过程调用（RPC）框架，可在任何环境运行。使用 gRPC 可以有效地连接数据中心内和跨数据中心的服务，gRPC 具有可插拔的负载均衡、追踪、健康检查和身份验证支持。它也适用于将设备、移动应用程序和浏览器连接到后端服务的分布式计算的最后一英里。
+gRPC 具有如下特点：
+简单的服务定义：使用 Protocol Buffers（强大的二进制序列化工具集和语言）定义服务 快速开始和伸缩：使用单行代码安装运行时和开发环境，还可以使用框架扩展到每秒数百万个 RPC 适用于多种语言和平台：自动地为服务生成各种语言和平台的客户端和服务端存根 双向流和集成认证：双向流和完全集成的基于 HTTP/2 传输的可插拔认证 gRPC 使用 Protocol Buffers 作为它的接口定义语言（Interface Definition Language，IDL），及底层的消息交换格式。</description>
+      
+    </item>
+    
     <item>
       <title>Skil</title>
       <link>http://example.org/posts/skil/</link>
