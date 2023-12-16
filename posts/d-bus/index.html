@@ -1,0 +1,320 @@
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html
+  class="not-ready lg:text-base"
+  style="--bg: #faf8f1"
+  lang="en-us"
+>
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>D-Bus - 脑洞大开</title>
+
+  
+  <meta name="theme-color" />
+
+  
+  
+  
+  
+  <meta name="description" content="D-Bus（Desktop-Bus）是一个IPC（Inter-Process Communication）通信机制，已经被各主流Linux发行版采用。其技术规范（specification）最早发布于2006年。相较于传统意义上的IPC机制（例如PIPE/FIFO/Socket/共享内存/SysvIpc），D-Bus提供了更高层次的抽象：1
+方法调用（Method Call）：用来实现跨进程的方法（函数）调用，配合代码生成工具，可以做到让进程间的函数调用和普通的函数调用几无区别 信号（Signal）：发布订阅（Pub-Sub）模式的通信机制，发送进程注册并发送（广播）信号，接收进程订阅自己感兴趣的信号。 属性（Property）：可类比C&#43;&#43;类中成员变量的Getter-Setter，如果进程A提供了一个属性，那么其他进程可以通过D-Bus来读取、写入该属性。 D-Bus制定技术规范的同时，也提供了一个参考实现，主要包括2部分：
+libdbus，进程可以通过libdbus提供的函数来接入到D-Bus，例如其会提供注册方法、调用方法、发布信号等等函数。根据官方手册友情提示： dbus-daemon，D-Bus的中心节点，实际上进程A和进程B通过D-Bus通信时，并不是通过Socket直接连接，而是进程A &lt;-&gt; dbus-daemon &lt;-&gt; B。dbus-daemon提供服务注册、消息路由等功能。 D-BUS daemon总线守护 基于libdbus的消息总线守护进程，可同时与多个应用程序相连，并能把来自一个应用程序的消息路由到0或者多个其他程序。 从一个进程传递消息给另外一个进程，如果有很多applications链接到这个通道上，这个daemon进程就会把消息转发给这些链接的所有程序。 D-Bus是点对点通信，经过daemon抽象后，并由他寻址和发送消息，每个进程不关心消息发给哪个进程。 发送消息的过程：
+创建和发送消息给后台dbus-daemon进程，这个过程中会有两个上下文的切换。 dbus-daemon进程会处理该消息，并转发给目标进程，引起上下文的切换目标程序接收到消息。 Attention: 传递大量的数据，D-Bus不建议，建议共享内存。
+https://zhuanlan.zhihu.com/p/533845321&#160;&#x21a9;&#xfe0e;" />
+  <meta name="author" content="脑洞大开" />
+  
+
+  
+  
+  
+  
+  
+  
+  <link rel="preload stylesheet" as="style" href="http://example.org/main.min.css" />
+
+  
+  
+  
+  
+  
+  <link rel="preload" as="image" href="http://example.org/theme.png" />
+
+  
+  
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  <script
+    defer
+    src="http://example.org/highlight.min.js"
+    onload="hljs.initHighlightingOnLoad();"
+  ></script>
+  
+
+  
+  
+  
+
+  
+  <link rel="icon" href="http://example.org/favicon.ico" />
+  <link rel="apple-touch-icon" href="http://example.org/apple-touch-icon.png" />
+
+  
+  <meta name="generator" content="Hugo 0.121.1">
+
+  
+  
+  
+  
+  
+  <meta itemprop="name" content="D-Bus">
+<meta itemprop="description" content="D-Bus（Desktop-Bus）是一个IPC（Inter-Process Communication）通信机制，已经被各主流Linux发行版采用。其技术规范（specification）最早发布于2006年。相较于传统意义上的IPC机制（例如PIPE/FIFO/Socket/共享内存/SysvIpc），D-Bus提供了更高层次的抽象：1
+方法调用（Method Call）：用来实现跨进程的方法（函数）调用，配合代码生成工具，可以做到让进程间的函数调用和普通的函数调用几无区别 信号（Signal）：发布订阅（Pub-Sub）模式的通信机制，发送进程注册并发送（广播）信号，接收进程订阅自己感兴趣的信号。 属性（Property）：可类比C&#43;&#43;类中成员变量的Getter-Setter，如果进程A提供了一个属性，那么其他进程可以通过D-Bus来读取、写入该属性。 D-Bus制定技术规范的同时，也提供了一个参考实现，主要包括2部分：
+libdbus，进程可以通过libdbus提供的函数来接入到D-Bus，例如其会提供注册方法、调用方法、发布信号等等函数。根据官方手册友情提示： dbus-daemon，D-Bus的中心节点，实际上进程A和进程B通过D-Bus通信时，并不是通过Socket直接连接，而是进程A &lt;-&gt; dbus-daemon &lt;-&gt; B。dbus-daemon提供服务注册、消息路由等功能。 D-BUS daemon总线守护 基于libdbus的消息总线守护进程，可同时与多个应用程序相连，并能把来自一个应用程序的消息路由到0或者多个其他程序。 从一个进程传递消息给另外一个进程，如果有很多applications链接到这个通道上，这个daemon进程就会把消息转发给这些链接的所有程序。 D-Bus是点对点通信，经过daemon抽象后，并由他寻址和发送消息，每个进程不关心消息发给哪个进程。 发送消息的过程：
+创建和发送消息给后台dbus-daemon进程，这个过程中会有两个上下文的切换。 dbus-daemon进程会处理该消息，并转发给目标进程，引起上下文的切换目标程序接收到消息。 Attention: 传递大量的数据，D-Bus不建议，建议共享内存。
+https://zhuanlan.zhihu.com/p/533845321&#160;&#x21a9;&#xfe0e;"><meta itemprop="datePublished" content="2023-12-16T14:49:31+08:00" />
+<meta itemprop="dateModified" content="2023-12-16T14:49:31+08:00" />
+<meta itemprop="wordCount" content="24">
+<meta itemprop="keywords" content="" />
+  
+  <meta property="og:title" content="D-Bus" />
+<meta property="og:description" content="D-Bus（Desktop-Bus）是一个IPC（Inter-Process Communication）通信机制，已经被各主流Linux发行版采用。其技术规范（specification）最早发布于2006年。相较于传统意义上的IPC机制（例如PIPE/FIFO/Socket/共享内存/SysvIpc），D-Bus提供了更高层次的抽象：1
+方法调用（Method Call）：用来实现跨进程的方法（函数）调用，配合代码生成工具，可以做到让进程间的函数调用和普通的函数调用几无区别 信号（Signal）：发布订阅（Pub-Sub）模式的通信机制，发送进程注册并发送（广播）信号，接收进程订阅自己感兴趣的信号。 属性（Property）：可类比C&#43;&#43;类中成员变量的Getter-Setter，如果进程A提供了一个属性，那么其他进程可以通过D-Bus来读取、写入该属性。 D-Bus制定技术规范的同时，也提供了一个参考实现，主要包括2部分：
+libdbus，进程可以通过libdbus提供的函数来接入到D-Bus，例如其会提供注册方法、调用方法、发布信号等等函数。根据官方手册友情提示： dbus-daemon，D-Bus的中心节点，实际上进程A和进程B通过D-Bus通信时，并不是通过Socket直接连接，而是进程A &lt;-&gt; dbus-daemon &lt;-&gt; B。dbus-daemon提供服务注册、消息路由等功能。 D-BUS daemon总线守护 基于libdbus的消息总线守护进程，可同时与多个应用程序相连，并能把来自一个应用程序的消息路由到0或者多个其他程序。 从一个进程传递消息给另外一个进程，如果有很多applications链接到这个通道上，这个daemon进程就会把消息转发给这些链接的所有程序。 D-Bus是点对点通信，经过daemon抽象后，并由他寻址和发送消息，每个进程不关心消息发给哪个进程。 发送消息的过程：
+创建和发送消息给后台dbus-daemon进程，这个过程中会有两个上下文的切换。 dbus-daemon进程会处理该消息，并转发给目标进程，引起上下文的切换目标程序接收到消息。 Attention: 传递大量的数据，D-Bus不建议，建议共享内存。
+https://zhuanlan.zhihu.com/p/533845321&#160;&#x21a9;&#xfe0e;" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/d-bus/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-16T14:49:31+08:00" />
+<meta property="article:modified_time" content="2023-12-16T14:49:31+08:00" />
+
+
+  
+  <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="D-Bus"/>
+<meta name="twitter:description" content="D-Bus（Desktop-Bus）是一个IPC（Inter-Process Communication）通信机制，已经被各主流Linux发行版采用。其技术规范（specification）最早发布于2006年。相较于传统意义上的IPC机制（例如PIPE/FIFO/Socket/共享内存/SysvIpc），D-Bus提供了更高层次的抽象：1
+方法调用（Method Call）：用来实现跨进程的方法（函数）调用，配合代码生成工具，可以做到让进程间的函数调用和普通的函数调用几无区别 信号（Signal）：发布订阅（Pub-Sub）模式的通信机制，发送进程注册并发送（广播）信号，接收进程订阅自己感兴趣的信号。 属性（Property）：可类比C&#43;&#43;类中成员变量的Getter-Setter，如果进程A提供了一个属性，那么其他进程可以通过D-Bus来读取、写入该属性。 D-Bus制定技术规范的同时，也提供了一个参考实现，主要包括2部分：
+libdbus，进程可以通过libdbus提供的函数来接入到D-Bus，例如其会提供注册方法、调用方法、发布信号等等函数。根据官方手册友情提示： dbus-daemon，D-Bus的中心节点，实际上进程A和进程B通过D-Bus通信时，并不是通过Socket直接连接，而是进程A &lt;-&gt; dbus-daemon &lt;-&gt; B。dbus-daemon提供服务注册、消息路由等功能。 D-BUS daemon总线守护 基于libdbus的消息总线守护进程，可同时与多个应用程序相连，并能把来自一个应用程序的消息路由到0或者多个其他程序。 从一个进程传递消息给另外一个进程，如果有很多applications链接到这个通道上，这个daemon进程就会把消息转发给这些链接的所有程序。 D-Bus是点对点通信，经过daemon抽象后，并由他寻址和发送消息，每个进程不关心消息发给哪个进程。 发送消息的过程：
+创建和发送消息给后台dbus-daemon进程，这个过程中会有两个上下文的切换。 dbus-daemon进程会处理该消息，并转发给目标进程，引起上下文的切换目标程序接收到消息。 Attention: 传递大量的数据，D-Bus不建议，建议共享内存。
+https://zhuanlan.zhihu.com/p/533845321&#160;&#x21a9;&#xfe0e;"/>
+
+  
+  
+  
+  <link rel="canonical" href="http://example.org/posts/d-bus/" />
+  
+  
+</head>
+
+  <body class="text-black duration-200 ease-out dark:text-white">
+    <header class="mx-auto flex h-[4.5rem] max-w-3xl px-8 lg:justify-center">
+  <div class="relative z-50 mr-auto flex items-center">
+    <a
+      class="-translate-x-[1px] -translate-y-[1px] text-2xl font-semibold"
+      href="http://example.org/"
+      >脑洞大开</a
+    >
+    <div
+      class="btn-dark text-[0] ml-4 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.png)_left_center/_auto_theme('spacing.6')_no-repeat] [transition:_background-position_0.4s_steps(5)] dark:[background-position:right]"
+      role="button"
+      aria-label="Dark"
+    ></div>
+  </div>
+
+  <div
+    class="btn-menu relative z-50 -mr-8 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden"
+    role="button"
+    aria-label="Menu"
+  ></div>
+
+  
+
+  <script>
+    
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = '#faf8f1'.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? '#000' : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"
+  >
+    
+    
+
+    
+  </div>
+</header>
+
+
+    <main
+      class="prose prose-neutral relative mx-auto min-h-[calc(100%-9rem)] max-w-3xl px-8 pb-16 pt-12 dark:prose-invert"
+    >
+      
+
+<article>
+  <header class="mb-16">
+    <h1 class="!my-0 pb-2.5">D-Bus</h1>
+
+    
+    <div class="text-sm antialiased opacity-60">
+      
+      <time>Dec 16, 2023</time>
+      
+      
+      
+      
+    </div>
+    
+  </header>
+
+  <section><blockquote>
+<p>D-Bus（Desktop-Bus）是一个IPC（Inter-Process Communication）通信机制，已经被各主流Linux发行版采用。其技术规范（specification）最早发布于2006年。相较于传统意义上的IPC机制（例如PIPE/FIFO/Socket/共享内存/SysvIpc），D-Bus提供了更高层次的抽象：<sup id="fnref:1"><a href="#fn:1" class="footnote-ref" role="doc-noteref">1</a></sup></p>
+<ul>
+<li>方法调用（Method Call）：用来实现跨进程的方法（函数）调用，配合代码生成工具，可以做到让进程间的函数调用和普通的函数调用几无区别</li>
+<li>信号（Signal）：发布订阅（Pub-Sub）模式的通信机制，发送进程注册并发送（广播）信号，接收进程订阅自己感兴趣的信号。</li>
+<li>属性（Property）：可类比C++类中成员变量的Getter-Setter，如果进程A提供了一个属性，那么其他进程可以通过D-Bus来读取、写入该属性。</li>
+</ul>
+</blockquote>
+<p>D-Bus制定技术规范的同时，也提供了一个参考实现，主要包括2部分：</p>
+<ol>
+<li>libdbus，进程可以通过libdbus提供的函数来接入到D-Bus，例如其会提供注册方法、调用方法、发布信号等等函数。根据官方手册友情提示：</li>
+<li>dbus-daemon，D-Bus的中心节点，实际上进程A和进程B通过D-Bus通信时，并不是通过Socket直接连接，而是进程A &lt;-&gt; dbus-daemon &lt;-&gt; B。dbus-daemon提供服务注册、消息路由等功能。</li>
+</ol>
+<h2 id="d-bus-daemon总线守护">D-BUS daemon总线守护</h2>
+<p>基于<code>libdbus</code>的消息总线守护进程，可同时与多个应用程序相连，并能把来自一个应用程序的消息路由到0或者多个其他程序。
+从一个进程传递消息给另外一个进程，如果有很多<code>applications</code>链接到这个通道上，这个<code>daemon</code>进程就会把消息转发给这些链接的所有程序。
+<code>D-Bus</code>是点对点通信，经过<code>daemon</code>抽象后，并由他寻址和发送消息，每个进程不关心消息发给哪个进程。
+发送消息的过程：</p>
+<ol>
+<li>创建和发送消息给后台<code>dbus-daemon</code>进程，这个过程中会有两个上下文的切换。</li>
+<li><code>dbus-daemon</code>进程会处理该消息，并转发给目标进程，引起上下文的切换目标程序接收到消息。</li>
+</ol>
+<p><strong>Attention:</strong> 传递大量的数据，D-Bus不建议，建议共享内存。</p>
+<div class="footnotes" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn:1">
+<p><a href="https://zhuanlan.zhihu.com/p/533845321">https://zhuanlan.zhihu.com/p/533845321</a>&#160;<a href="#fnref:1" class="footnote-backref" role="doc-backlink">&#x21a9;&#xfe0e;</a></p>
+</li>
+</ol>
+</div>
+</section>
+
+  
+  
+
+  
+  
+  
+  
+  <nav class="mt-24 flex rounded-lg bg-black/[3%] text-lg dark:bg-white/[8%]">
+    
+    
+    <a
+      class="ml-auto flex w-1/2 items-center justify-end rounded-r-md p-6 pl-3 font-semibold no-underline hover:bg-black/[2%] dark:hover:bg-white/[3%]"
+      href="http://example.org/posts/rpc/"
+      ><span>RPC</span><span class="ml-1.5">→</span></a
+    >
+    
+  </nav>
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+</article>
+
+
+    </main>
+
+      <script src="https://mermaidjs.github.io/scripts/mermaid.min.js"></script>
+  <script>
+        mermaid.initialize({ startOnLoad: true });
+  </script>
+
+  </body>
+</html>

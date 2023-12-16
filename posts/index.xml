@@ -6,29 +6,35 @@
     <description>Recent content in Posts on 脑洞大开</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <copyright>© 2023 </copyright>
-    <lastBuildDate>Fri, 15 Dec 2023 14:39:15 +0800</lastBuildDate><atom:link href="http://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 16 Dec 2023 14:49:31 +0800</lastBuildDate>
+    <atom:link href="http://example.org/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>D-Bus</title>
+      <link>http://example.org/posts/d-bus/</link>
+      <pubDate>Sat, 16 Dec 2023 14:49:31 +0800</pubDate>
+      <guid>http://example.org/posts/d-bus/</guid>
+      <description>D-Bus（Desktop-Bus）是一个IPC（Inter-Process Communication）通信机制，已经被各主流Linux发行版采用。其技术规范（specification）最早发布于2006年。相较于传统意义上的IPC机制（例如PIPE/FIFO/Socket/共享内存/SysvIpc），D-Bus提供了更高层次的抽象：1&#xA;方法调用（Method Call）：用来实现跨进程的方法（函数）调用，配合代码生成工具，可以做到让进程间的函数调用和普通的函数调用几无区别 信号（Signal）：发布订阅（Pub-Sub）模式的通信机制，发送进程注册并发送（广播）信号，接收进程订阅自己感兴趣的信号。 属性（Property）：可类比C++类中成员变量的Getter-Setter，如果进程A提供了一个属性，那么其他进程可以通过D-Bus来读取、写入该属性。 D-Bus制定技术规范的同时，也提供了一个参考实现，主要包括2部分：&#xA;libdbus，进程可以通过libdbus提供的函数来接入到D-Bus，例如其会提供注册方法、调用方法、发布信号等等函数。根据官方手册友情提示： dbus-daemon，D-Bus的中心节点，实际上进程A和进程B通过D-Bus通信时，并不是通过Socket直接连接，而是进程A &amp;lt;-&amp;gt; dbus-daemon &amp;lt;-&amp;gt; B。dbus-daemon提供服务注册、消息路由等功能。 D-BUS daemon总线守护 基于libdbus的消息总线守护进程，可同时与多个应用程序相连，并能把来自一个应用程序的消息路由到0或者多个其他程序。 从一个进程传递消息给另外一个进程，如果有很多applications链接到这个通道上，这个daemon进程就会把消息转发给这些链接的所有程序。 D-Bus是点对点通信，经过daemon抽象后，并由他寻址和发送消息，每个进程不关心消息发给哪个进程。 发送消息的过程：&#xA;创建和发送消息给后台dbus-daemon进程，这个过程中会有两个上下文的切换。 dbus-daemon进程会处理该消息，并转发给目标进程，引起上下文的切换目标程序接收到消息。 Attention: 传递大量的数据，D-Bus不建议，建议共享内存。&#xA;https://zhuanlan.zhihu.com/p/533845321&amp;#160;&amp;#x21a9;&amp;#xfe0e;</description>
+    </item>
+    <item>
+      <title>RPC</title>
+      <link>http://example.org/posts/rpc/</link>
+      <pubDate>Sat, 16 Dec 2023 13:42:53 +0800</pubDate>
+      <guid>http://example.org/posts/rpc/</guid>
+      <description>RPC全称为远程过程调用（Remote Procedure Call），它是一种计算机通信协议，允许一个计算机程序调用另一个计算机上的子程序，而无需了解底层网络细节。通过RPC，一个计算机程序可以像调用本地程序一样调用远程程序，使得分布式应用程序的开发更加简单和高效。1&#xA;在RPC中，调用者发送一个请求消息到远程主机，远程主机收到请求后执行相应的程序，并将结果返回给调用者。RPC通过序列化数据传输协议将数据打包并进行网络传输，常见的序列化协议有JSON、Protobuf、Thrift等。RPC通常使用TCP或UDP作为底层传输协议。&#xA;RPC常用于分布式系统中，例如云计算、微服务架构、分布式数据库等，它可以让不同的服务之间进行远程调用，从而实现分布式系统的协作。例如：&#xA;微服务架构：微服务架构中的各个服务通常都是通过RPC进行通信，实现服务之间的远程调用和数据传输。&#xA;云计算：云计算中的各种服务也需要通过RPC进行通信，例如计算、存储、网络等服务。&#xA;分布式数据库：分布式数据库中的各个节点之间需要进行数据同步和通信，也可以通过RPC实现。&#xA;消息队列：消息队列中的生产者和消费者之间也可以通过RPC进行通信，实现高效的消息传输和处理。&#xA;为什么需要RPC RPC可以用HTTP协议实现，并且用HTTP是建立在 TCP 之上最广泛使用的 RPC，但是互联网公司往往用自己的私有协议，比如鹅厂的JCE协议，私有协议不具备通用性为什么还要用呢？因为相比于HTTP协议，RPC采用二进制字节码传输，更加高效也更加安全。 现在业界提倡“微服务“的概念，而服务之间通信目前有两种方式，RPC就是其中一种。RPC可以保证不同服务之间的互相调用。即使是跨语言跨平台也不是问题，让构建分布式系统更加容易。 RPC框架都会有服务降级、流量控制的功能，保证服务的高可用。 https://baijiahao.baidu.com/s?id=1760709599822153631&amp;amp;wfr=spider&amp;amp;for=pc&amp;#160;&amp;#x21a9;&amp;#xfe0e;</description>
+    </item>
     <item>
       <title>gRpc</title>
       <link>http://example.org/posts/grpc/</link>
       <pubDate>Fri, 15 Dec 2023 14:39:15 +0800</pubDate>
-      
       <guid>http://example.org/posts/grpc/</guid>
-      <description>介绍 # gRPC 是开源的远程过程调用（RPC）框架，可在任何环境运行。使用 gRPC 可以有效地连接数据中心内和跨数据中心的服务，gRPC 具有可插拔的负载均衡、追踪、健康检查和身份验证支持。它也适用于将设备、移动应用程序和浏览器连接到后端服务的分布式计算的最后一英里。
-gRPC 具有如下特点：
-简单的服务定义：使用 Protocol Buffers（强大的二进制序列化工具集和语言）定义服务 快速开始和伸缩：使用单行代码安装运行时和开发环境，还可以使用框架扩展到每秒数百万个 RPC 适用于多种语言和平台：自动地为服务生成各种语言和平台的客户端和服务端存根 双向流和集成认证：双向流和完全集成的基于 HTTP/2 传输的可插拔认证 gRPC 使用 Protocol Buffers 作为它的接口定义语言（Interface Definition Language，IDL），及底层的消息交换格式。</description>
-      
+      <description>介绍 gRPC 是开源的远程过程调用（RPC）框架，可在任何环境运行。使用 gRPC 可以有效地连接数据中心内和跨数据中心的服务，gRPC 具有可插拔的负载均衡、追踪、健康检查和身份验证支持。它也适用于将设备、移动应用程序和浏览器连接到后端服务的分布式计算的最后一英里。&#xA;gRPC 具有如下特点：&#xA;简单的服务定义：使用 Protocol Buffers（强大的二进制序列化工具集和语言）定义服务 快速开始和伸缩：使用单行代码安装运行时和开发环境，还可以使用框架扩展到每秒数百万个 RPC 适用于多种语言和平台：自动地为服务生成各种语言和平台的客户端和服务端存根 双向流和集成认证：双向流和完全集成的基于 HTTP/2 传输的可插拔认证 gRPC 使用 Protocol Buffers 作为它的接口定义语言（Interface Definition Language，IDL），及底层的消息交换格式。</description>
     </item>
-    
     <item>
       <title>Skil</title>
       <link>http://example.org/posts/skil/</link>
       <pubDate>Wed, 13 Dec 2023 17:59:53 +0800</pubDate>
-      
       <guid>http://example.org/posts/skil/</guid>
-      <description> Socket,TCP,UDP RTP/RTMP/DASH/FLV H264/AAC/H264 WebRTC ffmpeg nginx,mysql,redis,memcached,thrift,grpc C++11,C++20,OOP,Design pattern </description>
-      
+      <description>C++11,C++20&#xA;Go&#xA;Python&#xA;Rust&#xA;Socket,TCP,UDP&#xA;RTP/RTMP/DASH/FLV&#xA;H264/AAC/H264&#xA;WebRTC&#xA;ffmpeg&#xA;Nginx,mysql,redis,memcached,thrift,grpc&#xA;Kafka&#xA;Hadoop MapReduce大数据处理&#xA;OOP,Design pattern</description>
     </item>
-    
   </channel>
 </rss>
