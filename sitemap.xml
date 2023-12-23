@@ -2,49 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-<<<<<<< HEAD
-    <loc>http://example.org/pages/novels/</loc>
-    <lastmod>2023-12-16T15:03:09+08:00</lastmod>
-  </url><url>
-    <loc>http://example.org/pages/</loc>
-    <lastmod>2023-12-16T15:03:09+08:00</lastmod>
-  </url><url>
-    <loc>http://example.org/</loc>
-    <lastmod>2023-12-16T15:03:09+08:00</lastmod>
-=======
-    <loc>http://example.org/posts/</loc>
+    <loc>/posts/</loc>
     <lastmod>2023-12-18T14:31:19+08:00</lastmod>
   </url><url>
-    <loc>http://example.org/posts/socket/</loc>
+    <loc>/posts/socket/</loc>
     <lastmod>2023-12-18T14:31:19+08:00</lastmod>
   </url><url>
-    <loc>http://example.org/</loc>
+    <loc>/</loc>
     <lastmod>2023-12-18T14:31:19+08:00</lastmod>
->>>>>>> f7bab57 (socket doc)
   </url><url>
-    <loc>http://example.org/posts/d-bus/</loc>
+    <loc>/posts/d-bus/</loc>
     <lastmod>2023-12-16T14:49:31+08:00</lastmod>
   </url><url>
-<<<<<<< HEAD
-    <loc>http://example.org/posts/</loc>
-    <lastmod>2023-12-16T14:49:31+08:00</lastmod>
-  </url><url>
-=======
->>>>>>> f7bab57 (socket doc)
-    <loc>http://example.org/posts/rpc/</loc>
+    <loc>/posts/rpc/</loc>
     <lastmod>2023-12-16T13:42:53+08:00</lastmod>
   </url><url>
-    <loc>http://example.org/posts/grpc/</loc>
+    <loc>/posts/grpc/</loc>
     <lastmod>2023-12-15T14:39:15+08:00</lastmod>
   </url><url>
-    <loc>http://example.org/myself/</loc>
+    <loc>/myself/</loc>
     <lastmod>2023-12-13T17:59:53+08:00</lastmod>
   </url><url>
-    <loc>http://example.org/posts/skil/</loc>
+    <loc>/posts/skil/</loc>
     <lastmod>2023-12-13T17:59:53+08:00</lastmod>
   </url><url>
-    <loc>http://example.org/categories/</loc>
+    <loc>/categories/</loc>
   </url><url>
-    <loc>http://example.org/tags/</loc>
+    <loc>/tags/</loc>
   </url>
 </urlset>
