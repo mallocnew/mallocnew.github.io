@@ -1,0 +1,309 @@
+<!doctype html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html
+  class="not-ready lg:text-base"
+  style="--bg: #faf8f1"
+  lang="en-us"
+>
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, shrink-to-fit=no"
+  />
+
+  
+  <title>Socket - 脑洞大开</title>
+
+  
+  <meta name="theme-color" />
+
+  
+  
+  
+  
+  <meta name="description" content="Socket出现的背景 Socket（套接字）是一种用于实现网络通信的编程接口（API），它提供了一种标准化的方式，使得不同操作系统和编程语言之间的应用程序能够相互通信。Socket最初是在BSD（Berkeley Software Distribution）操作系统中开发出来的，目的是为了实现在不同主机之间进行进程间通信。BSD是由加州大学伯克利分校开发的一个Unix操作系统的分支，它对Socket的定义和实现成为了事实上的标准。后来，由于互联网的发展，Socket被广泛应用于网络编程中。 在早期的计算机网络中，通信使用的是不同的协议，这些协议之间缺乏标准化的接口，使得应用程序的编写和移植变得非常困难。为了解决这个问题，一些计算机科学家开始研究如何定义一种标准的通信接口，以便不同的计算机之间能够进行通信。Socket就是在这个背景下诞生的，它提供了一种可移植、可扩展、易于使用的接口，使得应用程序能够在不同的操作系统和计算机之间进行通信。 随着互联网的发展，Socket成为了网络编程中不可或缺的一部分。它被广泛应用于各种网络应用程序中，如Web服务器、电子邮件客户端、聊天程序等。同时，随着计算机硬件和网络技术的不断发展，Socket也不断更新和完善，以适应新的应用场景和需求。
+Socket解决的问题 Socket通信主要是为了解决计算机网络中的进程间通信问题。在网络编程中，有两个进程需要进行通信才能完成特定的任务，这两个进程可能运行在不同的计算机上，也可能运行在同一台计算机上的不同进程中。Socket提供了一种标准化的接口，使得这些进程能够在网络中进行数据交换和通信。具体来说，Socket通信可以解决以下几个方面的问题：
+进程间通信：在同一台计算机上，不同的进程之间需要进行通信，Socket提供了一种标准化的接口，使得进程之间可以通过网络进行通信。 跨平台通信：不同的计算机、操作系统和编程语言之间需要进行通信，Socket提供了一种可移植的接口，使得应用程序可以在不同的平台上运行并进行通信。 网络通信安全性：网络通信中存在着信息泄露、数据篡改、拒绝服务攻击等安全问题，Socket可以通过加密、身份认证、防火墙等方式提高通信的安全性。 通信协议：Socket提供了一种灵活的通信协议，可以根据需要选择不同的协议来满足特定的通信需求，如TCP、UDP等协议。 " />
+  <meta name="author" content="脑洞大开" />
+  
+
+  
+  
+  
+  
+  
+  
+  <link rel="preload stylesheet" as="style" href="http://example.org/main.min.css" />
+
+  
+  
+  
+  
+  
+  <link rel="preload" as="image" href="http://example.org/theme.png" />
+
+  
+  
+  
+  
+  
+
+  
+  
+  
+
+  
+  
+  <script
+    defer
+    src="http://example.org/highlight.min.js"
+    onload="hljs.initHighlightingOnLoad();"
+  ></script>
+  
+
+  
+  
+  
+
+  
+  <link rel="icon" href="http://example.org/favicon.ico" />
+  <link rel="apple-touch-icon" href="http://example.org/apple-touch-icon.png" />
+
+  
+  <meta name="generator" content="Hugo 0.121.1">
+
+  
+  
+  
+  
+  
+  <meta itemprop="name" content="Socket">
+<meta itemprop="description" content="Socket出现的背景 Socket（套接字）是一种用于实现网络通信的编程接口（API），它提供了一种标准化的方式，使得不同操作系统和编程语言之间的应用程序能够相互通信。Socket最初是在BSD（Berkeley Software Distribution）操作系统中开发出来的，目的是为了实现在不同主机之间进行进程间通信。BSD是由加州大学伯克利分校开发的一个Unix操作系统的分支，它对Socket的定义和实现成为了事实上的标准。后来，由于互联网的发展，Socket被广泛应用于网络编程中。 在早期的计算机网络中，通信使用的是不同的协议，这些协议之间缺乏标准化的接口，使得应用程序的编写和移植变得非常困难。为了解决这个问题，一些计算机科学家开始研究如何定义一种标准的通信接口，以便不同的计算机之间能够进行通信。Socket就是在这个背景下诞生的，它提供了一种可移植、可扩展、易于使用的接口，使得应用程序能够在不同的操作系统和计算机之间进行通信。 随着互联网的发展，Socket成为了网络编程中不可或缺的一部分。它被广泛应用于各种网络应用程序中，如Web服务器、电子邮件客户端、聊天程序等。同时，随着计算机硬件和网络技术的不断发展，Socket也不断更新和完善，以适应新的应用场景和需求。
+Socket解决的问题 Socket通信主要是为了解决计算机网络中的进程间通信问题。在网络编程中，有两个进程需要进行通信才能完成特定的任务，这两个进程可能运行在不同的计算机上，也可能运行在同一台计算机上的不同进程中。Socket提供了一种标准化的接口，使得这些进程能够在网络中进行数据交换和通信。具体来说，Socket通信可以解决以下几个方面的问题：
+进程间通信：在同一台计算机上，不同的进程之间需要进行通信，Socket提供了一种标准化的接口，使得进程之间可以通过网络进行通信。 跨平台通信：不同的计算机、操作系统和编程语言之间需要进行通信，Socket提供了一种可移植的接口，使得应用程序可以在不同的平台上运行并进行通信。 网络通信安全性：网络通信中存在着信息泄露、数据篡改、拒绝服务攻击等安全问题，Socket可以通过加密、身份认证、防火墙等方式提高通信的安全性。 通信协议：Socket提供了一种灵活的通信协议，可以根据需要选择不同的协议来满足特定的通信需求，如TCP、UDP等协议。 "><meta itemprop="datePublished" content="2023-12-18T14:31:19+08:00" />
+<meta itemprop="dateModified" content="2023-12-18T14:31:19+08:00" />
+<meta itemprop="wordCount" content="12">
+<meta itemprop="keywords" content="" />
+  
+  <meta property="og:title" content="Socket" />
+<meta property="og:description" content="Socket出现的背景 Socket（套接字）是一种用于实现网络通信的编程接口（API），它提供了一种标准化的方式，使得不同操作系统和编程语言之间的应用程序能够相互通信。Socket最初是在BSD（Berkeley Software Distribution）操作系统中开发出来的，目的是为了实现在不同主机之间进行进程间通信。BSD是由加州大学伯克利分校开发的一个Unix操作系统的分支，它对Socket的定义和实现成为了事实上的标准。后来，由于互联网的发展，Socket被广泛应用于网络编程中。 在早期的计算机网络中，通信使用的是不同的协议，这些协议之间缺乏标准化的接口，使得应用程序的编写和移植变得非常困难。为了解决这个问题，一些计算机科学家开始研究如何定义一种标准的通信接口，以便不同的计算机之间能够进行通信。Socket就是在这个背景下诞生的，它提供了一种可移植、可扩展、易于使用的接口，使得应用程序能够在不同的操作系统和计算机之间进行通信。 随着互联网的发展，Socket成为了网络编程中不可或缺的一部分。它被广泛应用于各种网络应用程序中，如Web服务器、电子邮件客户端、聊天程序等。同时，随着计算机硬件和网络技术的不断发展，Socket也不断更新和完善，以适应新的应用场景和需求。
+Socket解决的问题 Socket通信主要是为了解决计算机网络中的进程间通信问题。在网络编程中，有两个进程需要进行通信才能完成特定的任务，这两个进程可能运行在不同的计算机上，也可能运行在同一台计算机上的不同进程中。Socket提供了一种标准化的接口，使得这些进程能够在网络中进行数据交换和通信。具体来说，Socket通信可以解决以下几个方面的问题：
+进程间通信：在同一台计算机上，不同的进程之间需要进行通信，Socket提供了一种标准化的接口，使得进程之间可以通过网络进行通信。 跨平台通信：不同的计算机、操作系统和编程语言之间需要进行通信，Socket提供了一种可移植的接口，使得应用程序可以在不同的平台上运行并进行通信。 网络通信安全性：网络通信中存在着信息泄露、数据篡改、拒绝服务攻击等安全问题，Socket可以通过加密、身份认证、防火墙等方式提高通信的安全性。 通信协议：Socket提供了一种灵活的通信协议，可以根据需要选择不同的协议来满足特定的通信需求，如TCP、UDP等协议。 " />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://example.org/posts/socket/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2023-12-18T14:31:19+08:00" />
+<meta property="article:modified_time" content="2023-12-18T14:31:19+08:00" />
+
+
+  
+  <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="Socket"/>
+<meta name="twitter:description" content="Socket出现的背景 Socket（套接字）是一种用于实现网络通信的编程接口（API），它提供了一种标准化的方式，使得不同操作系统和编程语言之间的应用程序能够相互通信。Socket最初是在BSD（Berkeley Software Distribution）操作系统中开发出来的，目的是为了实现在不同主机之间进行进程间通信。BSD是由加州大学伯克利分校开发的一个Unix操作系统的分支，它对Socket的定义和实现成为了事实上的标准。后来，由于互联网的发展，Socket被广泛应用于网络编程中。 在早期的计算机网络中，通信使用的是不同的协议，这些协议之间缺乏标准化的接口，使得应用程序的编写和移植变得非常困难。为了解决这个问题，一些计算机科学家开始研究如何定义一种标准的通信接口，以便不同的计算机之间能够进行通信。Socket就是在这个背景下诞生的，它提供了一种可移植、可扩展、易于使用的接口，使得应用程序能够在不同的操作系统和计算机之间进行通信。 随着互联网的发展，Socket成为了网络编程中不可或缺的一部分。它被广泛应用于各种网络应用程序中，如Web服务器、电子邮件客户端、聊天程序等。同时，随着计算机硬件和网络技术的不断发展，Socket也不断更新和完善，以适应新的应用场景和需求。
+Socket解决的问题 Socket通信主要是为了解决计算机网络中的进程间通信问题。在网络编程中，有两个进程需要进行通信才能完成特定的任务，这两个进程可能运行在不同的计算机上，也可能运行在同一台计算机上的不同进程中。Socket提供了一种标准化的接口，使得这些进程能够在网络中进行数据交换和通信。具体来说，Socket通信可以解决以下几个方面的问题：
+进程间通信：在同一台计算机上，不同的进程之间需要进行通信，Socket提供了一种标准化的接口，使得进程之间可以通过网络进行通信。 跨平台通信：不同的计算机、操作系统和编程语言之间需要进行通信，Socket提供了一种可移植的接口，使得应用程序可以在不同的平台上运行并进行通信。 网络通信安全性：网络通信中存在着信息泄露、数据篡改、拒绝服务攻击等安全问题，Socket可以通过加密、身份认证、防火墙等方式提高通信的安全性。 通信协议：Socket提供了一种灵活的通信协议，可以根据需要选择不同的协议来满足特定的通信需求，如TCP、UDP等协议。 "/>
+
+  
+  
+  
+  <link rel="canonical" href="http://example.org/posts/socket/" />
+  
+  
+</head>
+
+  <body class="text-black duration-200 ease-out dark:text-white">
+    <header class="mx-auto flex h-[4.5rem] max-w-3xl px-8 lg:justify-center">
+  <div class="relative z-50 mr-auto flex items-center">
+    <a
+      class="-translate-x-[1px] -translate-y-[1px] text-2xl font-semibold"
+      href="http://example.org/"
+      >脑洞大开</a
+    >
+    <div
+      class="btn-dark text-[0] ml-4 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.png)_left_center/_auto_theme('spacing.6')_no-repeat] [transition:_background-position_0.4s_steps(5)] dark:[background-position:right]"
+      role="button"
+      aria-label="Dark"
+    ></div>
+  </div>
+
+  <div
+    class="btn-menu relative z-50 -mr-8 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden"
+    role="button"
+    aria-label="Menu"
+  ></div>
+
+  
+
+  <script>
+    
+    const htmlClass = document.documentElement.classList;
+    setTimeout(() => {
+      htmlClass.remove('not-ready');
+    }, 10);
+
+    
+    const btnMenu = document.querySelector('.btn-menu');
+    btnMenu.addEventListener('click', () => {
+      htmlClass.toggle('open');
+    });
+
+    
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    const lightBg = '#faf8f1'.replace(/"/g, '');
+    const setDark = (isDark) => {
+      metaTheme.setAttribute('content', isDark ? '#000' : lightBg);
+      htmlClass[isDark ? 'add' : 'remove']('dark');
+      localStorage.setItem('dark', isDark);
+    };
+
+    
+    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+    if (htmlClass.contains('dark')) {
+      setDark(true);
+    } else {
+      const darkVal = localStorage.getItem('dark');
+      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
+    }
+
+    
+    darkScheme.addEventListener('change', (event) => {
+      setDark(event.matches);
+    });
+
+    
+    const btnDark = document.querySelector('.btn-dark');
+    btnDark.addEventListener('click', () => {
+      setDark(localStorage.getItem('dark') !== 'true');
+    });
+  </script>
+
+  <div
+    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"
+  >
+    
+    
+
+    
+  </div>
+</header>
+
+
+    <main
+      class="prose prose-neutral relative mx-auto min-h-[calc(100%-9rem)] max-w-3xl px-8 pb-16 pt-12 dark:prose-invert"
+    >
+      
+
+<article>
+  <header class="mb-16">
+    <h1 class="!my-0 pb-2.5">Socket</h1>
+
+    
+    <div class="text-sm antialiased opacity-60">
+      
+      <time>Dec 18, 2023</time>
+      
+      
+      
+      
+    </div>
+    
+  </header>
+
+  <section><h2 id="socket出现的背景">Socket出现的背景</h2>
+<blockquote>
+<p>Socket（套接字）是一种用于实现网络通信的编程接口（API），它提供了一种标准化的方式，使得不同操作系统和编程语言之间的应用程序能够相互通信。Socket最初是在BSD（Berkeley Software Distribution）操作系统中开发出来的，目的是为了实现在不同主机之间进行进程间通信。BSD是由加州大学伯克利分校开发的一个Unix操作系统的分支，它对Socket的定义和实现成为了事实上的标准。后来，由于互联网的发展，Socket被广泛应用于网络编程中。
+在早期的计算机网络中，通信使用的是不同的协议，这些协议之间缺乏标准化的接口，使得应用程序的编写和移植变得非常困难。为了解决这个问题，一些计算机科学家开始研究如何定义一种标准的通信接口，以便不同的计算机之间能够进行通信。Socket就是在这个背景下诞生的，它提供了一种可移植、可扩展、易于使用的接口，使得应用程序能够在不同的操作系统和计算机之间进行通信。
+随着互联网的发展，Socket成为了网络编程中不可或缺的一部分。它被广泛应用于各种网络应用程序中，如Web服务器、电子邮件客户端、聊天程序等。同时，随着计算机硬件和网络技术的不断发展，Socket也不断更新和完善，以适应新的应用场景和需求。</p>
+</blockquote>
+<h2 id="socket解决的问题">Socket解决的问题</h2>
+<p>Socket通信主要是为了解决计算机网络中的进程间通信问题。在网络编程中，有两个进程需要进行通信才能完成特定的任务，这两个进程可能运行在不同的计算机上，也可能运行在同一台计算机上的不同进程中。Socket提供了一种标准化的接口，使得这些进程能够在网络中进行数据交换和通信。具体来说，Socket通信可以解决以下几个方面的问题：</p>
+<ul>
+<li>进程间通信：在同一台计算机上，不同的进程之间需要进行通信，Socket提供了一种标准化的接口，使得进程之间可以通过网络进行通信。</li>
+<li>跨平台通信：不同的计算机、操作系统和编程语言之间需要进行通信，Socket提供了一种可移植的接口，使得应用程序可以在不同的平台上运行并进行通信。</li>
+<li>网络通信安全性：网络通信中存在着信息泄露、数据篡改、拒绝服务攻击等安全问题，Socket可以通过加密、身份认证、防火墙等方式提高通信的安全性。</li>
+<li>通信协议：Socket提供了一种灵活的通信协议，可以根据需要选择不同的协议来满足特定的通信需求，如TCP、UDP等协议。</li>
+</ul>
+</section>
+
+  
+  
+
+  
+  
+  
+  
+  <nav class="mt-24 flex rounded-lg bg-black/[3%] text-lg dark:bg-white/[8%]">
+    
+    
+    <a
+      class="ml-auto flex w-1/2 items-center justify-end rounded-r-md p-6 pl-3 font-semibold no-underline hover:bg-black/[2%] dark:hover:bg-white/[3%]"
+      href="http://example.org/posts/d-bus/"
+      ><span>D-Bus</span><span class="ml-1.5">→</span></a
+    >
+    
+  </nav>
+  
+  
+
+  
+  
+
+  
+  
+
+  
+  
+</article>
+
+
+    </main>
+
+    <footer
+  class="opaco mx-auto flex h-[4.5rem] max-w-3xl items-center px-8 text-[0.9em] opacity-60"
+>
+  <div class="mr-auto">
+    &copy; 2023
+    <a class="link" href="http://example.org/">脑洞大开</a>
+  </div>
+  <a class="link mx-6" href="https://gohugo.io/" rel="noopener" target="_blank"
+    >Powered by Hugo️️</a
+  >️
+  <a
+    class="link"
+    href="https://github.com/nanxiaobei/hugo-paper"
+    rel="noopener"
+    target="_blank"
+    >✎ Paper</a
+  >
+</footer>
+
+  </body>
+</html>

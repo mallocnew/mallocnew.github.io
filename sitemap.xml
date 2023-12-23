@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+<<<<<<< HEAD
     <loc>http://example.org/pages/novels/</loc>
     <lastmod>2023-12-16T15:03:09+08:00</lastmod>
   </url><url>
@@ -10,13 +11,26 @@
   </url><url>
     <loc>http://example.org/</loc>
     <lastmod>2023-12-16T15:03:09+08:00</lastmod>
+=======
+    <loc>http://example.org/posts/</loc>
+    <lastmod>2023-12-18T14:31:19+08:00</lastmod>
+  </url><url>
+    <loc>http://example.org/posts/socket/</loc>
+    <lastmod>2023-12-18T14:31:19+08:00</lastmod>
+  </url><url>
+    <loc>http://example.org/</loc>
+    <lastmod>2023-12-18T14:31:19+08:00</lastmod>
+>>>>>>> f7bab57 (socket doc)
   </url><url>
     <loc>http://example.org/posts/d-bus/</loc>
     <lastmod>2023-12-16T14:49:31+08:00</lastmod>
   </url><url>
+<<<<<<< HEAD
     <loc>http://example.org/posts/</loc>
     <lastmod>2023-12-16T14:49:31+08:00</lastmod>
   </url><url>
+=======
+>>>>>>> f7bab57 (socket doc)
     <loc>http://example.org/posts/rpc/</loc>
     <lastmod>2023-12-16T13:42:53+08:00</lastmod>
   </url><url>

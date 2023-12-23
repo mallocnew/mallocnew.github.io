@@ -6,6 +6,7 @@
     <description>Recent content on 脑洞大开</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+<<<<<<< HEAD
     <lastBuildDate>Sat, 16 Dec 2023 15:03:09 +0800</lastBuildDate>
     <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
     <item>
@@ -14,6 +15,16 @@
       <pubDate>Sat, 16 Dec 2023 15:03:09 +0800</pubDate>
       <guid>http://example.org/pages/novels/</guid>
       <description></description>
+=======
+    <lastBuildDate>Mon, 18 Dec 2023 14:31:19 +0800</lastBuildDate>
+    <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Socket</title>
+      <link>http://example.org/posts/socket/</link>
+      <pubDate>Mon, 18 Dec 2023 14:31:19 +0800</pubDate>
+      <guid>http://example.org/posts/socket/</guid>
+      <description>Socket出现的背景 Socket（套接字）是一种用于实现网络通信的编程接口（API），它提供了一种标准化的方式，使得不同操作系统和编程语言之间的应用程序能够相互通信。Socket最初是在BSD（Berkeley Software Distribution）操作系统中开发出来的，目的是为了实现在不同主机之间进行进程间通信。BSD是由加州大学伯克利分校开发的一个Unix操作系统的分支，它对Socket的定义和实现成为了事实上的标准。后来，由于互联网的发展，Socket被广泛应用于网络编程中。 在早期的计算机网络中，通信使用的是不同的协议，这些协议之间缺乏标准化的接口，使得应用程序的编写和移植变得非常困难。为了解决这个问题，一些计算机科学家开始研究如何定义一种标准的通信接口，以便不同的计算机之间能够进行通信。Socket就是在这个背景下诞生的，它提供了一种可移植、可扩展、易于使用的接口，使得应用程序能够在不同的操作系统和计算机之间进行通信。 随着互联网的发展，Socket成为了网络编程中不可或缺的一部分。它被广泛应用于各种网络应用程序中，如Web服务器、电子邮件客户端、聊天程序等。同时，随着计算机硬件和网络技术的不断发展，Socket也不断更新和完善，以适应新的应用场景和需求。&#xA;Socket解决的问题 Socket通信主要是为了解决计算机网络中的进程间通信问题。在网络编程中，有两个进程需要进行通信才能完成特定的任务，这两个进程可能运行在不同的计算机上，也可能运行在同一台计算机上的不同进程中。Socket提供了一种标准化的接口，使得这些进程能够在网络中进行数据交换和通信。具体来说，Socket通信可以解决以下几个方面的问题：&#xA;进程间通信：在同一台计算机上，不同的进程之间需要进行通信，Socket提供了一种标准化的接口，使得进程之间可以通过网络进行通信。 跨平台通信：不同的计算机、操作系统和编程语言之间需要进行通信，Socket提供了一种可移植的接口，使得应用程序可以在不同的平台上运行并进行通信。 网络通信安全性：网络通信中存在着信息泄露、数据篡改、拒绝服务攻击等安全问题，Socket可以通过加密、身份认证、防火墙等方式提高通信的安全性。 通信协议：Socket提供了一种灵活的通信协议，可以根据需要选择不同的协议来满足特定的通信需求，如TCP、UDP等协议。 </description>
+>>>>>>> f7bab57 (socket doc)
     </item>
     <item>
       <title>D-Bus</title>
