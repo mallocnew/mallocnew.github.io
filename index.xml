@@ -41,14 +41,14 @@
       <link>/myself/</link>
       <pubDate>Wed, 13 Dec 2023 17:59:53 +0800</pubDate>
       <guid>/myself/</guid>
-      <description>MySelf 我是一个脑洞大开的人，老是想着做很高级的事情，其实自己连小事情都做不好:smile: 我最近老想过去的事情，感觉自己很傻:smile: If you want to chat with me, email to me:smile: easytojoin@163.com 人有时候还是要坚持自我的，要是轻易放弃的话，岂不是很后悔吗？</description>
+      <description>MySelf 我是一个脑洞大开的人，老是想着做很高级的事情，其实自己连小事情都做不好:smile: 我最近老想过去的事情，感觉自己很傻:smile: If you want to chat with me, email to me:smile: easytojoin@163.com 人有时候还是要坚持自我的，要是轻易放弃的话，岂不是很后悔吗？&#xA;sequenceDiagram&#xD;participant Alice&#xD;participant Bob&#xD;Alice-&amp;gt;&amp;gt;John: Hello John, how are you?&#xD;loop Healthcheck&#xD;John-&amp;gt;&amp;gt;John: Fight against hypochondria&#xD;end&#xD;Note right of John: Rational thoughts &amp;lt;br/&amp;gt;prevail!&#xD;John--&amp;gt;&amp;gt;Alice: Great!&#xD;John-&amp;gt;&amp;gt;Bob: How about you?&#xD;Bob--&amp;gt;&amp;gt;John: Jolly good! </description>
     </item>
     <item>
       <title>Skil</title>
       <link>/posts/skil/</link>
       <pubDate>Wed, 13 Dec 2023 17:59:53 +0800</pubDate>
       <guid>/posts/skil/</guid>
-      <description>C++11,C++20&#xA;Go&#xA;Python&#xA;Rust&#xA;Socket,TCP,UDP&#xA;RTP/RTMP/DASH/FLV&#xA;H264/AAC/H264&#xA;WebRTC&#xA;ffmpeg&#xA;Nginx,mysql,redis,memcached,thrift,grpc&#xA;Kafka&#xA;Hadoop MapReduce大数据处理&#xA;OOP,Design pattern</description>
+      <description> C++11,C++20 Go Python Java Rust OOP,Design pattern Socket,TCP,UDP BLE TLS, MQTT, COAP, HTTPS P2P/PCDN RTP/RTCP/RTMP/RTSP/DASH/FLV SIP PCM, SILK, iLBC, Opus, VP8 H264/AAC/H265/MPEG4 HLS/FLV/MP4 Quic WebRTC ffmpeg Nginx, mysql, memcached, thrift, grpc Redis, Elasticsearch Kafka, RabbitMQ faiss Tair, Lucene, mesos Docker, K8S, ELK TensorFlow libevent Spark, Hive, Flink, hbase, ClickHouse, Doris, Velox, storm Hadoop MapReduce大数据处理 HDFS/Ceph/GlusterFS TEE技术（Intel SGX/Intel TDX/AMD SEV/GPU TEE） CUDA TensorFlow, PyTorch </description>
     </item>
   </channel>
 </rss>
