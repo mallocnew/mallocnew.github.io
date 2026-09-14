@@ -1,324 +1,350 @@
 <!doctype html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<html
-  class="not-ready lg:text-base"
-  style="--bg: #faf8f1"
-  lang="en-us"
->
+<html lang="en">
   <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, shrink-to-fit=no"
-  />
-
-  
-  <title>脑洞大开</title>
-
-  
-  <meta name="theme-color" />
-
-  
-  
-  
-  
-  
-  <meta
-    name="description"
-    content="A personal blog"
-  />
-  <meta name="author" content="脑洞大开" />
-  
-
-  
-  
-  
-  
-  
-  
-  <link rel="preload stylesheet" as="style" href="/main.min.css" />
-
-  
-  
-  
-  
-  
-  <link rel="preload" as="image" href="theme.png" />
-
-  
-  
-  
-  
-  
-
-  
-  
-  
-
-  
-  
-
-  
-  
-  
-
-  
-  <link rel="icon" href="favicon.ico" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-
-  
-  <meta name="generator" content="Hugo 0.121.1">
-
-  
-  
-  
-  
-  
-  <meta itemprop="name" content="脑洞大开">
-<meta itemprop="description" content="">
-  
-  <meta property="og:title" content="脑洞大开" />
-<meta property="og:description" content="" />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="/" />
-
-
-  
-  <meta name="twitter:card" content="summary"/><meta name="twitter:title" content="脑洞大开"/>
-<meta name="twitter:description" content=""/>
-
-  
-  
-  <link
-    rel="alternate"
-    type="application/rss&#43;xml"
-    href="/index.xml"
-    title="脑洞大开"
-  />
-  
-  
-  <link rel="canonical" href="/" />
-  
-  
-</head>
-
-  <body class="text-black duration-200 ease-out dark:text-white">
-    <header class="mx-auto flex h-[4.5rem] max-w-3xl px-8 lg:justify-center">
-  <div class="relative z-50 mr-auto flex items-center">
-    <a
-      class="-translate-x-[1px] -translate-y-[1px] text-2xl font-semibold"
-      href=""
-      >脑洞大开</a
-    >
-    <div
-      class="btn-dark text-[0] ml-4 h-6 w-6 shrink-0 cursor-pointer [background:url(./theme.png)_left_center/_auto_theme('spacing.6')_no-repeat] [transition:_background-position_0.4s_steps(5)] dark:[background-position:right]"
-      role="button"
-      aria-label="Dark"
-    ></div>
-  </div>
-
-  <div
-    class="btn-menu relative z-50 -mr-8 flex h-[4.5rem] w-[5rem] shrink-0 cursor-pointer flex-col items-center justify-center gap-2.5 lg:hidden"
-    role="button"
-    aria-label="Menu"
-  ></div>
-
-  
-
-  <script>
-    
-    const htmlClass = document.documentElement.classList;
-    setTimeout(() => {
-      htmlClass.remove('not-ready');
-    }, 10);
-
-    
-    const btnMenu = document.querySelector('.btn-menu');
-    btnMenu.addEventListener('click', () => {
-      htmlClass.toggle('open');
-    });
-
-    
-    const metaTheme = document.querySelector('meta[name="theme-color"]');
-    const lightBg = '#faf8f1'.replace(/"/g, '');
-    const setDark = (isDark) => {
-      metaTheme.setAttribute('content', isDark ? '#000' : lightBg);
-      htmlClass[isDark ? 'add' : 'remove']('dark');
-      localStorage.setItem('dark', isDark);
-    };
-
-    
-    const darkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-    if (htmlClass.contains('dark')) {
-      setDark(true);
-    } else {
-      const darkVal = localStorage.getItem('dark');
-      setDark(darkVal ? darkVal === 'true' : darkScheme.matches);
-    }
-
-    
-    darkScheme.addEventListener('change', (event) => {
-      setDark(event.matches);
-    });
-
-    
-    const btnDark = document.querySelector('.btn-dark');
-    btnDark.addEventListener('click', () => {
-      setDark(localStorage.getItem('dark') !== 'true');
-    });
-  </script>
-
-  <div
-    class="nav-wrapper fixed inset-x-0 top-full z-40 flex h-full select-none flex-col justify-center pb-16 duration-200 dark:bg-black lg:static lg:h-auto lg:flex-row lg:!bg-transparent lg:pb-0 lg:transition-none"
-  >
-    
-    
-
-    
-  </div>
-</header>
-
-
-    <main
-      class="prose prose-neutral relative mx-auto min-h-[calc(100%-9rem)] max-w-3xl px-8 pb-16 pt-12 dark:prose-invert"
-    >
-      
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-<section class="relative my-10 first-of-type:mt-0 last-of-type:mb-0">
-  
-  <h2 class="!my-0 pb-1 font-bold !leading-none">Socket</h2>
-  <time class="text-sm antialiased opacity-60"
-    >Dec 18, 2023</time
-  >
-  <a class="absolute inset-0 text-[0]" href="/posts/socket/">Socket</a>
-</section>
-
-
-
-
-
-<section class="relative my-10 first-of-type:mt-0 last-of-type:mb-0">
-  
-  <h2 class="!my-0 pb-1 font-bold !leading-none">D-Bus</h2>
-  <time class="text-sm antialiased opacity-60"
-    >Dec 16, 2023</time
-  >
-  <a class="absolute inset-0 text-[0]" href="/posts/d-bus/">D-Bus</a>
-</section>
-
-
-
-
-
-<section class="relative my-10 first-of-type:mt-0 last-of-type:mb-0">
-  
-  <h2 class="!my-0 pb-1 font-bold !leading-none">RPC</h2>
-  <time class="text-sm antialiased opacity-60"
-    >Dec 16, 2023</time
-  >
-  <a class="absolute inset-0 text-[0]" href="/posts/rpc/">RPC</a>
-</section>
-
-
-
-
-
-<section class="relative my-10 first-of-type:mt-0 last-of-type:mb-0">
-  
-  <h2 class="!my-0 pb-1 font-bold !leading-none">gRpc</h2>
-  <time class="text-sm antialiased opacity-60"
-    >Dec 15, 2023</time
-  >
-  <a class="absolute inset-0 text-[0]" href="/posts/grpc/">gRpc</a>
-</section>
-
-
-
-
-
-<section class="relative my-10 first-of-type:mt-0 last-of-type:mb-0">
-  
-  <h2 class="!my-0 pb-1 font-bold !leading-none">Skil</h2>
-  <time class="text-sm antialiased opacity-60"
-    >Dec 13, 2023</time
-  >
-  <a class="absolute inset-0 text-[0]" href="/posts/skil/">Skil</a>
-</section>
-
-
-
-
-
-
-    </main>
-
-    <footer
-  class="opaco mx-auto flex h-[4.5rem] max-w-3xl items-center px-8 text-[0.9em] opacity-60"
->
-  <div class="mr-auto">
-    &copy; 2023
-    <a class="link" href="">脑洞大开</a>
-  </div>
-  <a class="link mx-6" href="https://gohugo.io/" rel="noopener" target="_blank"
-    >Powered by Hugo️️</a
-  >️
-  <a
-    class="link"
-    href="https://github.com/nanxiaobei/hugo-paper"
-    rel="noopener"
-    target="_blank"
-    >✎ Paper</a
-  >
-</footer>
-
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>Speech to Text</title>
+    <meta name="theme-color" content="#0b1020" />
+    <meta name="description" content="Non-streaming speech to text. Drop an audio file or record, then get the full transcript." />
+    <link rel="canonical" href="/" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <style>
+      :root {
+        --bg: #070b16;
+        --panel: rgba(255, 255, 255, 0.06);
+        --panel-2: rgba(255, 255, 255, 0.09);
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f4f7ff;
+        --muted: #9aa6c3;
+        --accent: #6ea8ff;
+        --danger: #ff6b7a;
+        --ok: #5ee1b5;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(1200px 600px at 12% -10%, rgba(110, 168, 255, 0.28), transparent 55%),
+          radial-gradient(900px 500px at 110% 8%, rgba(139, 123, 255, 0.22), transparent 50%),
+          radial-gradient(700px 400px at 70% 110%, rgba(94, 225, 181, 0.12), transparent 50%),
+          var(--bg);
+      }
+      a { color: inherit; text-decoration: none; }
+      .shell {
+        min-height: 100%;
+        width: min(760px, calc(100% - 2rem));
+        margin-inline: auto;
+        padding: 1.25rem 0 3rem;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 2.25rem;
+      }
+      .brand {
+        font-weight: 650;
+        letter-spacing: -0.03em;
+      }
+      .lang {
+        display: flex;
+        gap: 0.2rem;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0.15rem;
+        background: var(--panel);
+      }
+      .lang button {
+        appearance: none;
+        border: 0;
+        background: transparent;
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 0.35rem 0.75rem;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.82rem;
+      }
+      .lang button.is-on {
+        background: rgba(255, 255, 255, 0.14);
+        color: var(--text);
+      }
+      .hero {
+        display: grid;
+        gap: 0.75rem;
+        margin-bottom: 1.75rem;
+      }
+      .badge {
+        width: fit-content;
+        border: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--muted);
+        border-radius: 999px;
+        padding: 0.28rem 0.7rem;
+        font-size: 0.78rem;
+      }
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 3.4rem);
+        letter-spacing: -0.045em;
+        line-height: 1.05;
+      }
+      .sub {
+        margin: 0;
+        max-width: 38rem;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.65;
+      }
+      .layout { display: grid; gap: 1rem; }
+      .card {
+        border: 1px solid var(--line);
+        background: linear-gradient(180deg, var(--panel-2), var(--panel));
+        border-radius: 1.35rem;
+        padding: 1.15rem;
+        backdrop-filter: blur(18px);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+      }
+      .drop {
+        position: relative;
+        min-height: 260px;
+        border: 1.5px dashed rgba(255, 255, 255, 0.22);
+        border-radius: 1.1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 1.5rem;
+        cursor: pointer;
+        transition: border-color 0.18s, background 0.18s, transform 0.18s;
+      }
+      .drop-copy {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        max-width: 22rem;
+      }
+      .drop:hover, .drop.is-over {
+        border-color: var(--accent);
+        background: rgba(110, 168, 255, 0.08);
+      }
+      .drop.is-over { transform: scale(1.01); }
+      .drop.is-busy { pointer-events: none; opacity: 0.72; }
+      .drop input { display: none; }
+      .drop-icon {
+        width: 54px;
+        height: 54px;
+        margin: 0 auto 0.5rem;
+        border-radius: 16px;
+        display: grid;
+        place-items: center;
+        background: rgba(110, 168, 255, 0.16);
+        color: var(--accent);
+        font-size: 1.4rem;
+      }
+      .drop h2 {
+        margin: 0;
+        font-size: 1.15rem;
+        letter-spacing: -0.03em;
+      }
+      .drop p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+      .models {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.45rem;
+        margin-bottom: 0.85rem;
+      }
+      .models button {
+        appearance: none;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        border-radius: 0.85rem;
+        padding: 0.55rem 0.4rem;
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      .models button.is-on {
+        color: var(--text);
+        border-color: rgba(110, 168, 255, 0.55);
+        background: rgba(110, 168, 255, 0.16);
+      }
+      .models button:disabled { opacity: 0.45; cursor: not-allowed; }
+      .model-hint {
+        margin: 0 0 0.85rem;
+        color: var(--muted);
+        font-size: 0.86rem;
+        line-height: 1.5;
+        min-height: 2.4em;
+      }
+      @media (max-width: 560px) {
+        .models { grid-template-columns: repeat(2, 1fr); }
+      }
+      .actions {
+        display: flex;
+        gap: 0.7rem;
+        margin-top: 0.95rem;
+      }
+      .btn {
+        flex: 1;
+        appearance: none;
+        border: 0;
+        border-radius: 999px;
+        padding: 0.78rem 1rem;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        color: #07101f;
+        background: linear-gradient(90deg, var(--accent), #8ec0ff);
+      }
+      .btn.ghost {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--line);
+      }
+      .btn.live {
+        background: var(--danger);
+        color: #fff;
+      }
+      .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-top: 0.9rem;
+        color: var(--muted);
+        font-size: 0.86rem;
+      }
+      .status.is-error { color: var(--danger); }
+      .status.is-ok { color: var(--ok); }
+      .filechip {
+        display: none;
+        margin-top: 0.8rem;
+        padding: 0.55rem 0.75rem;
+        border-radius: 0.8rem;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--muted);
+        font-size: 0.86rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .filechip.is-on { display: block; }
+      .result-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.85rem;
+      }
+      .result-head h2 {
+        margin: 0;
+        font-size: 1rem;
+        letter-spacing: -0.02em;
+      }
+      textarea {
+        width: 100%;
+        min-height: 220px;
+        resize: vertical;
+        border: 1px solid var(--line);
+        border-radius: 0.95rem;
+        padding: 0.95rem 1rem;
+        background: rgba(7, 11, 22, 0.45);
+        color: var(--text);
+        font: inherit;
+        line-height: 1.7;
+      }
+      textarea:focus { outline: 2px solid rgba(110, 168, 255, 0.45); }
+      .segments {
+        margin: 0.85rem 0 0;
+        padding: 0;
+        display: grid;
+        gap: 0.55rem;
+        max-height: 280px;
+        overflow: auto;
+      }
+      .segments li {
+        padding: 0.7rem 0.8rem;
+        border-radius: 0.8rem;
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .seg-time {
+        display: block;
+        color: var(--accent);
+        font-size: 0.75rem;
+        font-variant-numeric: tabular-nums;
+        margin-bottom: 0.2rem;
+      }
+      .seg-spk {
+        display: inline-block;
+        margin-right: 0.45rem;
+        color: var(--ok);
+        font-size: 0.75rem;
+      }
+      .seg-text { color: #e8edfb; font-size: 0.95rem; }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="top">
+        <a class="brand" href="/" data-i18n="brand">Speech to Text</a>
+        <div class="lang" role="group" aria-label="Language">
+          <button type="button" data-lang="zh">中文</button>
+          <button type="button" data-lang="en">English</button>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div class="badge" data-i18n="badge">Non-streaming · result after the full clip</div>
+        <h1 data-i18n="title">Turn speech into text</h1>
+        <p class="sub" data-i18n="sub">Drop an audio file or start a recording. Transcription runs on the complete clip and returns the full text plus timestamps. No live streaming ASR.</p>
+      </section>
+
+      <div class="layout" data-asr>
+        <section class="card">
+          <div class="models" role="tablist" data-asr-models>
+            <button type="button" data-asr-model="general" data-i18n="modelGeneral">General</button>
+            <button type="button" data-asr-model="ultra" data-i18n="modelUltra">Ultra</button>
+            <button type="button" data-asr-model="gsr" data-i18n="modelGsr">Polish</button>
+            <button type="button" data-asr-model="diarize" data-i18n="modelDiarize">Speakers</button>
+          </div>
+          <p class="model-hint" data-asr-hint></p>
+          <label class="drop" data-asr-drop>
+            <input type="file" accept="audio/*,video/webm,video/mp4" data-asr-file />
+            <div class="drop-copy">
+              <div class="drop-icon">↑</div>
+              <h2 data-i18n="dropTitle">Drop a file here</h2>
+              <p data-i18n="dropHint">Or click to choose. mp3 / wav / m4a / webm, up to 50MB.</p>
+            </div>
+          </label>
+          <div class="filechip" data-asr-filechip></div>
+          <div class="actions">
+            <button type="button" class="btn" data-asr-record data-i18n="record">Start recording</button>
+            <button type="button" class="btn ghost" data-asr-copy data-i18n="copy">Copy text</button>
+          </div>
+          <div class="meta">
+            <span class="status" data-asr-status data-i18n="idle">Waiting for audio</span>
+            <span data-asr-model-id>XingChenASR-V3.2</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="result-head">
+            <h2 data-i18n="result">Transcript</h2>
+          </div>
+          <textarea data-asr-text data-i18n-placeholder="placeholder" placeholder="Full text will appear here"></textarea>
+          <ol class="segments" data-asr-segments hidden></ol>
+        </section>
+      </div>
+    </div>
+    <script src="/asr.js"></script>
   </body>
 </html>
