@@ -43,16 +43,16 @@ const MODELS = {
 const I18N = {
   zh: {
     brand: "语音转写",
-    badge: "非流式 · 整段识别完成后返回",
-    title: "把声音变成文字",
-    sub: "拖入音频文件，或开始录音。识别在整段结束后一次性返回全文和时间轴，不做实时流式转写。",
-    dropTitle: "把文件拖到这里",
-    dropHint: "也可点击选择。支持 mp3 / wav / m4a / webm 等，最大 50MB。",
+    badge: "批处理 · 非流式",
+    source: "音源",
+    dropTitle: "拖入音频文件",
+    dropHint: "点击选择。支持 mp3 / wav / m4a / webm 等，最大 50MB。",
     record: "开始录音",
     stop: "停止录音",
     copy: "复制全文",
+    download: "下载音频",
     idle: "等待音频",
-    result: "识别结果",
+    result: "转写结果",
     placeholder: "全文会显示在这里",
     pageTitle: "语音转写",
     desc: "非流式语音转写：拖入音频或录音，整段识别后返回全文与时间轴。",
@@ -85,14 +85,14 @@ const I18N = {
   },
   en: {
     brand: "Speech to Text",
-    badge: "Non-streaming · result after the full clip",
-    title: "Turn speech into text",
-    sub: "Drop an audio file or start a recording. Transcription runs on the complete clip and returns the full text plus timestamps. No live streaming ASR.",
+    badge: "Batch · non-streaming",
+    source: "Source",
     dropTitle: "Drop a file here",
-    dropHint: "Or click to choose. mp3 / wav / m4a / webm, up to 50MB.",
+    dropHint: "Click to browse. mp3 / wav / m4a / webm, up to 50MB.",
     record: "Start recording",
     stop: "Stop recording",
     copy: "Copy text",
+    download: "Download audio",
     idle: "Waiting for audio",
     result: "Transcript",
     placeholder: "Full text will appear here",
@@ -342,6 +342,13 @@ async function transcribe(file, filename) {
   return parsed;
 }
 
+function formatBytes(n) {
+  const size = Number(n) || 0;
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 function formatTime(sec) {
   const s = Math.max(0, Number(sec) || 0);
   const m = Math.floor(s / 60);
@@ -422,6 +429,7 @@ function renderResult(root, parsed) {
     const body = document.createElement("span");
     body.className = "seg-text";
     body.textContent = seg.text;
+    li.dataset.start = String(seg.start);
     li.append(time, body);
     segsEl.append(li);
   });
@@ -463,8 +471,12 @@ function initAsrPage() {
   const recBtn = root.querySelector("[data-asr-record]");
   const fileInput = root.querySelector("[data-asr-file]");
   const copyBtn = root.querySelector("[data-asr-copy]");
+  const downloadBtn = root.querySelector("[data-asr-download]");
   const drop = root.querySelector("[data-asr-drop]");
   const filechip = root.querySelector("[data-asr-filechip]");
+  const filesize = root.querySelector("[data-asr-filesize]");
+  const media = root.querySelector("[data-asr-media]");
+  const player = root.querySelector("[data-asr-player]");
   const modelBtns = root.querySelectorAll("[data-asr-model]");
   const ui = { status };
 
@@ -474,6 +486,8 @@ function initAsrPage() {
   let recTimer = null;
   let busy = false;
   let dragDepth = 0;
+  let mediaUrl = "";
+  let mediaName = "";
 
   document.querySelectorAll("[data-lang]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -501,15 +515,17 @@ function initAsrPage() {
     });
   });
 
-  const showFile = (name) => {
-    if (!filechip) return;
-    if (!name) {
-      filechip.classList.remove("is-on");
-      filechip.textContent = "";
-      return;
-    }
-    filechip.textContent = name;
-    filechip.classList.add("is-on");
+  const attachMedia = (blob, name) => {
+    if (!player || !blob) return;
+    if (mediaUrl) URL.revokeObjectURL(mediaUrl);
+    mediaUrl = URL.createObjectURL(blob);
+    mediaName = name || t("unnamed");
+    player.src = mediaUrl;
+    player.load();
+    if (filechip) filechip.textContent = mediaName;
+    if (filesize) filesize.textContent = formatBytes(blob.size);
+    if (media) media.classList.add("is-on");
+    if (downloadBtn) downloadBtn.disabled = false;
   };
 
   const setBusy = (next) => {
@@ -525,7 +541,7 @@ function initAsrPage() {
 
   const runFile = async (file) => {
     if (!file || busy) return;
-    showFile(file.name || t("unnamed"));
+    attachMedia(file, file.name || t("unnamed"));
     setBusy(true);
     try {
       const parsed = await recognizeBlob(file, file.name, ui);
@@ -576,9 +592,10 @@ function initAsrPage() {
         const blob = new Blob(chunks, { type: mimeType });
         chunks = [];
 
+        const recName = `${t("recordingFile")}.${recorderExt(mimeType)}`;
+        attachMedia(blob, recName);
         setBusy(true);
         try {
-          showFile(`${t("recordingFile")}.${recorderExt(mimeType)}`);
           const parsed = await recognizeBlob(blob, recorderExt(mimeType), ui);
           renderResult(root, parsed);
           setStatus(status, parsed.segments.length ? t("doneSeg") : t("done"), "ok");
@@ -660,6 +677,25 @@ function initAsrPage() {
     const file = pickDroppedFile(e.dataTransfer);
     if (!file) return;
     await runFile(file);
+  });
+
+  downloadBtn.addEventListener("click", () => {
+    if (!mediaUrl) return;
+    const a = document.createElement("a");
+    a.href = mediaUrl;
+    a.download = mediaName || `${t("recordingFile")}.webm`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+  });
+
+  root.querySelector("[data-asr-segments]").addEventListener("click", (e) => {
+    const item = e.target.closest("li");
+    if (!item || !player || !player.src) return;
+    const start = Number(item.dataset.start);
+    if (!Number.isFinite(start)) return;
+    player.currentTime = start;
+    player.play().catch(() => {});
   });
 
   copyBtn.addEventListener("click", async () => {
