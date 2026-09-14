@@ -1,7 +1,6 @@
 const ASR_URL = "https://api.siliconflow.cn/v1/audio/transcriptions";
 const ASR_API_KEY = "sk-etgsjpdxjawxvzmnvxvozmfqbkwrziagpulsdxuaxiwuukzu";
 const ASR_REQUEST_TIMEOUT_MS = 140000;
-const FILE_MAX_BYTES = 50 * 1024 * 1024;
 const LANG_KEY = "asr-lang";
 const MODEL_KEY = "asr-model";
 
@@ -9,7 +8,6 @@ const MODELS = {
   general: {
     key: "general",
     id: "XingChenAGI/XingChenASR-V3.2",
-    short: "XingChenASR-V3.2",
     diarize: false,
     labelKey: "modelGeneral",
     hintKey: "hintGeneral",
@@ -17,7 +15,6 @@ const MODELS = {
   ultra: {
     key: "ultra",
     id: "XingChenAGI/XingChenASR-V3.2-Ultra",
-    short: "XingChenASR-V3.2-Ultra",
     diarize: false,
     labelKey: "modelUltra",
     hintKey: "hintUltra",
@@ -25,7 +22,6 @@ const MODELS = {
   gsr: {
     key: "gsr",
     id: "XingChenAGI/XingChenGSR-V1.0",
-    short: "XingChenGSR-V1.0",
     diarize: false,
     labelKey: "modelGsr",
     hintKey: "hintGsr",
@@ -33,7 +29,6 @@ const MODELS = {
   diarize: {
     key: "diarize",
     id: "XingChenAGI/XingChenASR-Diarize-V3.0",
-    short: "XingChenASR-Diarize-V3.0",
     diarize: true,
     labelKey: "modelDiarize",
     hintKey: "hintDiarize",
@@ -46,11 +41,14 @@ const I18N = {
     badge: "批处理 · 非流式",
     source: "音源",
     dropTitle: "拖入音频文件",
-    dropHint: "点击选择。支持 mp3 / wav / m4a / webm 等，最大 50MB。",
+    dropHint: "点击即可选择。支持 mp3 / wav / m4a / webm 等，最大 50MB。",
     record: "开始录音",
     stop: "停止录音",
     copy: "复制全文",
     download: "下载音频",
+    chooseFile: "选择文件",
+    play: "试听",
+    pause: "暂停",
     idle: "等待音频",
     result: "转写结果",
     placeholder: "全文会显示在这里",
@@ -64,14 +62,15 @@ const I18N = {
     doneSeg: "转写完成，已生成时间轴",
     copied: "已复制全文",
     errEmpty: "音频数据为空",
-    errTooLarge: "音频过大（上限 50MB）",
     errTimeout: "ASR 请求超时",
     errNoContent: "未识别到有效内容",
-    errFail: (status) => `ASR 请求失败 (${status})`,
+    errFail: (status) => `ASR 请求失败 (HTTP ${status})`,
+    errNetwork: "网络错误",
     errMic: "无法打开麦克风",
     errRecorder: "当前浏览器不支持录音",
     errNoFile: "没有识别到可用的音频文件",
     errCopy: "复制失败",
+    errPlay: "当前文件无法试听，可下载后用系统播放器打开",
     errGeneric: "语音识别失败",
     modelGeneral: "通用",
     modelUltra: "Ultra",
@@ -88,11 +87,14 @@ const I18N = {
     badge: "Batch · non-streaming",
     source: "Source",
     dropTitle: "Drop a file here",
-    dropHint: "Click to browse. mp3 / wav / m4a / webm, up to 50MB.",
+    dropHint: "Tap to choose. mp3 / wav / m4a / webm, up to 50MB.",
     record: "Start recording",
     stop: "Stop recording",
     copy: "Copy text",
     download: "Download audio",
+    chooseFile: "Choose file",
+    play: "Play",
+    pause: "Pause",
     idle: "Waiting for audio",
     result: "Transcript",
     placeholder: "Full text will appear here",
@@ -106,14 +108,15 @@ const I18N = {
     doneSeg: "Done. Timeline generated",
     copied: "Copied",
     errEmpty: "Audio is empty",
-    errTooLarge: "Audio is too large (50MB max)",
     errTimeout: "ASR request timed out",
     errNoContent: "No speech detected",
-    errFail: (status) => `ASR request failed (${status})`,
+    errFail: (status) => `ASR request failed (HTTP ${status})`,
+    errNetwork: "Network error",
     errMic: "Microphone permission denied",
     errRecorder: "This browser cannot record audio",
     errNoFile: "No usable audio file found",
     errCopy: "Copy failed",
+    errPlay: "This file cannot be previewed. Download it and open in a system player.",
     errGeneric: "Speech recognition failed",
     modelGeneral: "General",
     modelUltra: "Ultra",
@@ -158,8 +161,6 @@ function syncModelUi() {
   });
   const hint = document.querySelector("[data-asr-hint]");
   if (hint) hint.textContent = t(model.hintKey);
-  const idEl = document.querySelector("[data-asr-model-id]");
-  if (idEl) idEl.textContent = model.short;
 }
 
 function t(key, arg) {
@@ -194,6 +195,7 @@ function applyLang(lang, opts = {}) {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     if (opts.keepStatus && el.hasAttribute("data-asr-status")) return;
     if (opts.keepRecord && el.hasAttribute("data-asr-record")) return;
+    if (opts.keepPlay && el.hasAttribute("data-asr-play")) return;
     el.textContent = t(el.getAttribute("data-i18n"));
   });
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
@@ -276,12 +278,47 @@ function parseTranscriptionBody(data, diarize) {
   return { text, segments, duration };
 }
 
-function extractAsrError(data, status) {
-  if (data && typeof data === "object") {
-    const msg = data.message || (data.error && data.error.message) || data.error;
-    if (typeof msg === "string" && msg) return msg;
+function pickErrorFields(data) {
+  if (data == null || data === "") return {};
+  if (typeof data === "string") return { message: data };
+  if (typeof data !== "object") return { message: String(data) };
+
+  const nested = data.error && typeof data.error === "object" ? data.error : null;
+  const code =
+    (nested && (nested.code || nested.type || nested.error_code)) ||
+    data.code ||
+    data.type ||
+    data.error_code ||
+    data.errno;
+  let message =
+    (nested && nested.message) ||
+    data.message ||
+    (typeof data.error === "string" ? data.error : "") ||
+    data.msg ||
+    data.detail;
+  if (message && typeof message === "object") {
+    message = message.message || JSON.stringify(message);
   }
-  return t("errFail", status);
+  return { code, message };
+}
+
+function formatHttpError(status, data) {
+  const { code, message } = pickErrorFields(data);
+  const parts = [`HTTP ${status || "?"}`];
+  if (code) parts.push(String(code));
+  if (message && String(message) !== String(code)) parts.push(String(message));
+  if (parts.length === 1 && data && typeof data === "object") {
+    try {
+      parts.push(JSON.stringify(data));
+    } catch {
+      /* ignore */
+    }
+  }
+  return parts.join(" · ");
+}
+
+function extractAsrError(data, status) {
+  return formatHttpError(status, data);
 }
 
 async function postTranscription(file, filename, options = {}) {
@@ -307,12 +344,21 @@ async function postTranscription(file, filename, options = {}) {
       body: form,
       signal: controller.signal,
     });
-    const data = await response.json().catch(() => null);
+    const raw = await response.text();
+    let data = null;
+    if (raw) {
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        data = raw;
+      }
+    }
     return { status: response.status, data };
   } catch (err) {
     if (err.name === "AbortError") {
       throw new Error("TIMEOUT");
     }
+    err.network = true;
     throw err;
   } finally {
     clearTimeout(timer);
@@ -332,14 +378,27 @@ async function transcribe(file, filename) {
   const plainResp = await postTranscription(file, filename, { verbose: false });
 
   if (plainResp.status !== 200) {
-    throw new Error(extractAsrError(plainResp.data, plainResp.status));
+    const last = formatHttpError(plainResp.status, plainResp.data);
+    if (verboseResp.status !== 200 && verboseResp.status !== plainResp.status) {
+      throw new Error(`${last} | verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`);
+    }
+    throw new Error(last);
   }
 
   const parsed = parseTranscriptionBody(plainResp.data, currentModel().diarize);
   if (!parsed.text && !parsed.segments.length) {
-    throw new Error("NO_CONTENT");
+    const extra =
+      verboseResp.status !== 200
+        ? ` · verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`
+        : "";
+    throw new Error(`NO_CONTENT${extra}`);
   }
   return parsed;
+}
+
+function formatClock(sec) {
+  const s = Math.max(0, Math.floor(Number(sec) || 0));
+  return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 }
 
 function formatBytes(n) {
@@ -381,10 +440,16 @@ function setStatus(el, text, kind) {
 
 function localizeError(err) {
   const code = err && err.message;
-  if (code === "TIMEOUT") return t("errTimeout");
-  if (code === "NO_CONTENT") return t("errNoContent");
+  if (code === "TIMEOUT") {
+    return `${t("errTimeout")} · ${Math.round(ASR_REQUEST_TIMEOUT_MS / 1000)}s`;
+  }
   if (code === "EMPTY") return t("errEmpty");
-  if (code === "TOO_LARGE") return t("errTooLarge");
+  if (typeof code === "string" && code.startsWith("NO_CONTENT")) {
+    return code === "NO_CONTENT" ? t("errNoContent") : `${t("errNoContent")} · ${code.slice("NO_CONTENT".length).replace(/^ · /, "")}`;
+  }
+  if (err && err.network) {
+    return `${t("errNetwork")} · ${err.message || t("errGeneric")}`;
+  }
   return (err && err.message) || t("errGeneric");
 }
 
@@ -439,9 +504,6 @@ async function recognizeBlob(blob, nameHint, ui) {
   if (!blob || !blob.size) {
     throw new Error("EMPTY");
   }
-  if (blob.size > FILE_MAX_BYTES) {
-    throw new Error("TOO_LARGE");
-  }
 
   const format = resolveFormat(nameHint || blob.type);
   const filename = `audio.${format}`;
@@ -476,7 +538,11 @@ function initAsrPage() {
   const filechip = root.querySelector("[data-asr-filechip]");
   const filesize = root.querySelector("[data-asr-filesize]");
   const media = root.querySelector("[data-asr-media]");
-  const player = root.querySelector("[data-asr-player]");
+  const audioEl = root.querySelector("[data-asr-player]");
+  const videoEl = root.querySelector("[data-asr-video]");
+  const playBtn = root.querySelector("[data-asr-play]");
+  const seek = root.querySelector("[data-asr-seek]");
+  const clock = root.querySelector("[data-asr-clock]");
   const modelBtns = root.querySelectorAll("[data-asr-model]");
   const ui = { status };
 
@@ -488,14 +554,20 @@ function initAsrPage() {
   let dragDepth = 0;
   let mediaUrl = "";
   let mediaName = "";
+  let activePlayer = audioEl;
+  let seeking = false;
 
   document.querySelectorAll("[data-lang]").forEach((btn) => {
     btn.addEventListener("click", () => {
       applyLang(btn.getAttribute("data-lang"), {
         keepStatus: busy || Boolean(recorder),
         keepRecord: Boolean(recorder),
+        keepPlay: Boolean(activePlayer && !activePlayer.paused && !activePlayer.ended),
       });
       if (recorder) recBtn.textContent = t("stop");
+      if (playBtn && activePlayer && !playBtn.disabled) {
+        playBtn.textContent = activePlayer.paused ? t("play") : t("pause");
+      }
       syncModelUi();
     });
   });
@@ -515,17 +587,57 @@ function initAsrPage() {
     });
   });
 
+  const syncClock = () => {
+    if (!clock || !activePlayer) return;
+    const cur = activePlayer.currentTime || 0;
+    const dur = Number.isFinite(activePlayer.duration) ? activePlayer.duration : 0;
+    clock.textContent = `${formatClock(cur)} / ${formatClock(dur)}`;
+    if (seek && !seeking && dur) {
+      seek.max = String(dur);
+      seek.value = String(cur);
+    }
+  };
+
+  const setActivePlayer = (el) => {
+    [audioEl, videoEl].forEach((node) => {
+      if (!node) return;
+      node.pause();
+      node.classList.toggle("is-on", node === el);
+    });
+    activePlayer = el;
+  };
+
+  const isVideoFile = (blob, name) => {
+    const type = (blob.type || "").toLowerCase();
+    const filename = (name || "").toLowerCase();
+    return type.startsWith("video/") || /\.(mp4|mov|m4v|webm)$/.test(filename);
+  };
+
   const attachMedia = (blob, name) => {
-    if (!player || !blob) return;
+    if (!blob) return;
     if (mediaUrl) URL.revokeObjectURL(mediaUrl);
     mediaUrl = URL.createObjectURL(blob);
     mediaName = name || t("unnamed");
-    player.src = mediaUrl;
-    player.load();
+    const useVideo = isVideoFile(blob, mediaName);
+    const el = useVideo ? videoEl : audioEl;
+    if (!el) return;
+    setActivePlayer(el);
+    el.src = mediaUrl;
+    el.load();
     if (filechip) filechip.textContent = mediaName;
     if (filesize) filesize.textContent = formatBytes(blob.size);
     if (media) media.classList.add("is-on");
     if (downloadBtn) downloadBtn.disabled = false;
+    if (playBtn) {
+      playBtn.disabled = false;
+      playBtn.textContent = t("play");
+    }
+    if (seek) {
+      seek.disabled = false;
+      seek.value = "0";
+      seek.max = "0";
+    }
+    if (clock) clock.textContent = "00:00 / 00:00";
   };
 
   const setBusy = (next) => {
@@ -569,7 +681,9 @@ function initAsrPage() {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true },
+      });
       const mime = pickRecorderMime();
       recorder = mime
         ? new MediaRecorder(stream, { mimeType: mime })
@@ -607,7 +721,7 @@ function initAsrPage() {
         }
       });
 
-      recorder.start();
+      recorder.start(250);
       recBtn.textContent = t("stop");
       recBtn.classList.add("live");
       recTimer = setInterval(() => {
@@ -679,6 +793,58 @@ function initAsrPage() {
     await runFile(file);
   });
 
+  if (playBtn) {
+    playBtn.addEventListener("click", async () => {
+      if (!activePlayer || !activePlayer.src) return;
+      if (activePlayer.paused) {
+        try {
+          await activePlayer.play();
+        } catch (err) {
+          console.error("play error", err);
+          setStatus(status, t("errPlay"), "error");
+        }
+      } else {
+        activePlayer.pause();
+      }
+    });
+  }
+
+  if (seek) {
+    seek.addEventListener("pointerdown", () => {
+      seeking = true;
+    });
+    seek.addEventListener("input", () => {
+      if (!activePlayer) return;
+      activePlayer.currentTime = Number(seek.value) || 0;
+      syncClock();
+    });
+    seek.addEventListener("change", () => {
+      seeking = false;
+    });
+  }
+
+  [audioEl, videoEl].forEach((el) => {
+    if (!el) return;
+    el.addEventListener("loadedmetadata", syncClock);
+    el.addEventListener("timeupdate", syncClock);
+    el.addEventListener("play", () => {
+      if (playBtn) playBtn.textContent = t("pause");
+    });
+    el.addEventListener("pause", () => {
+      if (playBtn) playBtn.textContent = t("play");
+    });
+    el.addEventListener("ended", () => {
+      if (playBtn) playBtn.textContent = t("play");
+    });
+    el.addEventListener("error", () => {
+      if (el === audioEl && videoEl && mediaUrl) {
+        setActivePlayer(videoEl);
+        videoEl.src = mediaUrl;
+        videoEl.load();
+      }
+    });
+  });
+
   downloadBtn.addEventListener("click", () => {
     if (!mediaUrl) return;
     const a = document.createElement("a");
@@ -691,11 +857,11 @@ function initAsrPage() {
 
   root.querySelector("[data-asr-segments]").addEventListener("click", (e) => {
     const item = e.target.closest("li");
-    if (!item || !player || !player.src) return;
+    if (!item || !activePlayer || !activePlayer.src) return;
     const start = Number(item.dataset.start);
     if (!Number.isFinite(start)) return;
-    player.currentTime = start;
-    player.play().catch(() => {});
+    activePlayer.currentTime = start;
+    activePlayer.play().catch(() => {});
   });
 
   copyBtn.addEventListener("click", async () => {

@@ -2,7 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
     <title>Speech to Text</title>
     <meta name="theme-color" content="#0b1018" />
     <meta name="description" content="Non-streaming speech to text. Drop an audio file or record, then get the full transcript." />
@@ -24,6 +26,7 @@
       }
       * { box-sizing: border-box; }
       html, body { height: 100%; }
+      button, input, label { touch-action: manipulation; }
       body {
         margin: 0;
         color: var(--text);
@@ -31,6 +34,7 @@
         background:
           linear-gradient(180deg, #0e1522 0%, var(--bg) 28%),
           var(--bg);
+        padding-bottom: env(safe-area-inset-bottom);
       }
       a { color: inherit; text-decoration: none; }
       .app {
@@ -54,6 +58,7 @@
         justify-content: space-between;
         gap: 1rem;
         padding: 0.85rem 0;
+        padding-top: max(0.85rem, env(safe-area-inset-top));
       }
       .brand {
         display: flex;
@@ -108,15 +113,16 @@
         color: var(--text);
       }
       .workspace {
-        width: min(1180px, calc(100% - 2rem));
-        margin: 1.25rem auto 2.5rem;
+        width: min(1180px, calc(100% - 1.25rem));
+        margin: 1rem auto 2.5rem;
         display: grid;
         gap: 1rem;
         grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
         align-items: start;
       }
-      @media (max-width: 920px) {
+      @media (max-width: 1024px) {
         .workspace { grid-template-columns: 1fr; }
+        .chip { display: none; }
       }
       .panel {
         border: 1px solid var(--line);
@@ -153,6 +159,7 @@
         background: var(--bg-2);
         color: var(--muted);
         border-radius: 6px;
+        min-height: 44px;
         padding: 0.55rem 0.35rem;
         font: inherit;
         font-size: 0.8rem;
@@ -177,7 +184,7 @@
       }
       .drop {
         margin-top: 0.85rem;
-        min-height: 168px;
+        min-height: 132px;
         border: 1px dashed #3a4863;
         border-radius: 8px;
         display: flex;
@@ -185,7 +192,7 @@
         align-items: center;
         justify-content: center;
         text-align: center;
-        padding: 1.1rem;
+        padding: 1rem;
         cursor: pointer;
         background: #101722;
       }
@@ -223,9 +230,42 @@
         color: var(--text);
         font-weight: 600;
       }
-      audio {
+      .media-el { display: none; width: 100%; }
+      .media-el.is-on { display: block; }
+      video.media-el.is-on {
+        max-height: 180px;
+        background: #000;
+        border-radius: 6px;
+      }
+      .transport {
+        display: grid;
+        grid-template-columns: 48px 1fr auto;
+        gap: 0.55rem;
+        align-items: center;
+      }
+      .play {
+        width: 48px;
+        height: 48px;
+        border: 0;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #071018;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .play:disabled { opacity: 0.4; }
+      .seek {
         width: 100%;
-        height: 36px;
+        accent-color: var(--accent);
+        height: 28px;
+      }
+      .clock {
+        min-width: 5.6rem;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-size: 0.75rem;
+        color: var(--muted);
       }
       .row {
         display: flex;
@@ -237,9 +277,10 @@
         appearance: none;
         border: 1px solid transparent;
         border-radius: 6px;
+        min-height: 48px;
         padding: 0.68rem 0.85rem;
         font: inherit;
-        font-size: 0.88rem;
+        font-size: 0.92rem;
         font-weight: 650;
         cursor: pointer;
         color: #071018;
@@ -255,9 +296,16 @@
         color: #fff;
       }
       .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+      label.btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
       .status-bar {
         display: flex;
         justify-content: space-between;
+        align-items: flex-start;
         gap: 0.75rem;
         margin-top: 0.85rem;
         padding-top: 0.75rem;
@@ -266,9 +314,14 @@
         font-size: 0.78rem;
         font-variant-numeric: tabular-nums;
       }
+      .status {
+        flex: 1;
+        white-space: pre-wrap;
+        word-break: break-word;
+        line-height: 1.45;
+      }
       .status.is-error { color: var(--danger); }
       .status.is-ok { color: var(--ok); }
-      .model-id { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
       textarea {
         width: 100%;
         min-height: 280px;
@@ -311,6 +364,17 @@
         color: var(--ok);
       }
       .seg-text { color: #d7deec; font-size: 0.92rem; }
+      @media (max-width: 1024px) {
+        .media.is-on {
+          position: sticky;
+          bottom: 0;
+          z-index: 12;
+          margin-bottom: 0;
+          box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.35);
+        }
+        textarea { min-height: 180px; }
+        .segments { max-height: 40vh; }
+      }
     </style>
   </head>
   <body>
@@ -342,11 +406,11 @@
               <button type="button" data-asr-model="diarize" data-i18n="modelDiarize">Speakers</button>
             </div>
             <p class="model-hint" data-asr-hint></p>
-            <label class="drop" data-asr-drop>
-              <input type="file" accept="audio/*,video/webm,video/mp4" data-asr-file />
+            <label class="drop" data-asr-drop for="asr-file">
+              <input id="asr-file" type="file" accept="audio/*,video/webm,video/mp4,video/quicktime,.m4a,.mp3,.wav,.aac,.ogg,.flac,.caf" data-asr-file />
               <div>
                 <h3 data-i18n="dropTitle">Drop a file here</h3>
-                <p data-i18n="dropHint">Click to browse. mp3 / wav / m4a / webm, up to 50MB.</p>
+                <p data-i18n="dropHint">Tap to choose. mp3 / wav / m4a / webm, up to 50MB.</p>
               </div>
             </label>
             <div class="media" data-asr-media>
@@ -354,18 +418,26 @@
                 <span class="media-name" data-asr-filechip></span>
                 <span data-asr-filesize></span>
               </div>
-              <audio controls data-asr-player></audio>
+              <audio class="media-el" data-asr-player playsinline webkit-playsinline preload="metadata"></audio>
+              <video class="media-el" data-asr-video playsinline webkit-playsinline preload="metadata"></video>
+              <div class="transport">
+                <button type="button" class="play" data-asr-play data-i18n="play" disabled>Play</button>
+                <input class="seek" type="range" min="0" max="0" step="0.1" value="0" data-asr-seek disabled />
+                <span class="clock" data-asr-clock>00:00 / 00:00</span>
+              </div>
               <div class="row" style="margin-top:0">
                 <button type="button" class="btn ghost" data-asr-download data-i18n="download" disabled>Download audio</button>
               </div>
             </div>
             <div class="row">
+              <label class="btn ghost" for="asr-file" data-i18n="chooseFile">Choose file</label>
               <button type="button" class="btn" data-asr-record data-i18n="record">Start recording</button>
+            </div>
+            <div class="row">
               <button type="button" class="btn ghost" data-asr-copy data-i18n="copy">Copy text</button>
             </div>
             <div class="status-bar">
               <span class="status" data-asr-status data-i18n="idle">Waiting for audio</span>
-              <span class="model-id" data-asr-model-id>XingChenASR-V3.2</span>
             </div>
           </div>
         </section>
