@@ -7,7 +7,7 @@
     <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet" />
     <title>Speech to Text</title>
     <meta name="theme-color" content="#0b1018" />
-    <meta name="description" content="Non-streaming speech to text. Drop an audio file or record, then get the full transcript." />
+    <meta name="description" content="Non-streaming speech to text. Drop audio or video, or record, then get the full transcript." />
     <link rel="canonical" href="/" />
     <link rel="manifest" href="/site.webmanifest" />
     <style>
@@ -19,10 +19,8 @@
         --text: #e8edf7;
         --muted: #8b97ad;
         --accent: #3d8bfd;
-        --accent-2: #1f4f9a;
         --danger: #e5484d;
         --ok: #3ecf8e;
-        --warn: #f5a524;
       }
       * { box-sizing: border-box; }
       html, body { height: 100%; }
@@ -171,14 +169,13 @@
         border-color: var(--accent);
         background: #173057;
       }
-      .models button:disabled { opacity: 0.4; cursor: not-allowed; }
       .model-hint {
         margin: 0.65rem 0 0;
         color: var(--muted);
         font-size: 0.8rem;
         line-height: 1.5;
-        min-height: 2.3em;
       }
+      .model-hint + .model-hint { margin-top: 0.25rem; min-height: 0; }
       @media (max-width: 560px) {
         .models { grid-template-columns: repeat(2, 1fr); }
       }
@@ -200,7 +197,6 @@
         border-color: var(--accent);
         background: #142033;
       }
-      .drop.is-busy { pointer-events: none; opacity: 0.65; }
       .drop input { display: none; }
       .drop h3 {
         margin: 0 0 0.3rem;
@@ -233,9 +229,12 @@
       .media-el { display: none; width: 100%; }
       .media-el.is-on { display: block; }
       video.media-el.is-on {
-        max-height: 180px;
+        width: 100%;
+        max-height: min(42vh, 380px);
+        object-fit: contain;
         background: #000;
         border-radius: 6px;
+        cursor: pointer;
       }
       .transport {
         display: grid;
@@ -406,11 +405,12 @@
               <button type="button" data-asr-model="diarize" data-i18n="modelDiarize">Speakers</button>
             </div>
             <p class="model-hint" data-asr-hint></p>
+            <p class="model-hint" data-i18n="reuseHint">Switch models to transcribe the same media again.</p>
             <label class="drop" data-asr-drop for="asr-file">
-              <input id="asr-file" type="file" accept="audio/*,video/webm,video/mp4,video/quicktime,.m4a,.mp3,.wav,.aac,.ogg,.flac,.caf" data-asr-file />
+              <input id="asr-file" type="file" accept="audio/*,video/*,.mp4,.mov,.m4v,.webm,.mkv,.avi,.mpeg,.3gp" data-asr-file />
               <div>
-                <h3 data-i18n="dropTitle">Drop a file here</h3>
-                <p data-i18n="dropHint">Tap to choose. mp3 / wav / m4a / webm, up to 50MB.</p>
+                <h3 data-i18n="dropTitle">Drop audio or video</h3>
+                <p data-i18n="dropHint">Tap to choose. mp3 / wav / m4a / mp4 and other media, up to 50MB.</p>
               </div>
             </label>
             <div class="media" data-asr-media>
@@ -426,7 +426,7 @@
                 <span class="clock" data-asr-clock>00:00 / 00:00</span>
               </div>
               <div class="row" style="margin-top:0">
-                <button type="button" class="btn ghost" data-asr-download data-i18n="download" disabled>Download audio</button>
+                <button type="button" class="btn ghost" data-asr-download data-i18n="download" disabled>Download</button>
               </div>
             </div>
             <div class="row">
@@ -437,7 +437,7 @@
               <button type="button" class="btn ghost" data-asr-copy data-i18n="copy">Copy text</button>
             </div>
             <div class="status-bar">
-              <span class="status" data-asr-status data-i18n="idle">Waiting for audio</span>
+              <span class="status" data-asr-status data-i18n="idle">Waiting for media</span>
             </div>
           </div>
         </section>

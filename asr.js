@@ -40,20 +40,20 @@ const I18N = {
     brand: "语音转写",
     badge: "批处理 · 非流式",
     source: "音源",
-    dropTitle: "拖入音频文件",
-    dropHint: "点击即可选择。支持 mp3 / wav / m4a / webm 等，最大 50MB。",
+    dropTitle: "拖入音频或视频",
+    dropHint: "点击即可选择。支持 mp3 / wav / m4a / mp4 等音视频，最大 50MB。",
     record: "开始录音",
     stop: "停止录音",
     copy: "复制全文",
-    download: "下载音频",
+    download: "下载文件",
     chooseFile: "选择文件",
     play: "试听",
     pause: "暂停",
-    idle: "等待音频",
+    idle: "等待音视频",
     result: "转写结果",
     placeholder: "全文会显示在这里",
     pageTitle: "语音转写",
-    desc: "非流式语音转写：拖入音频或录音，整段识别后返回全文与时间轴。",
+    desc: "非流式语音转写：拖入音频、视频或录音，整段识别后返回全文与时间轴。",
     transcribing: "转写中…",
     recording: (sec) => `录音中 ${sec}s`,
     recordingFile: "录音",
@@ -64,11 +64,10 @@ const I18N = {
     errEmpty: "音频数据为空",
     errTimeout: "ASR 请求超时",
     errNoContent: "未识别到有效内容",
-    errFail: (status) => `ASR 请求失败 (HTTP ${status})`,
     errNetwork: "网络错误",
     errMic: "无法打开麦克风",
     errRecorder: "当前浏览器不支持录音",
-    errNoFile: "没有识别到可用的音频文件",
+    errNoFile: "没有识别到可用的音视频文件",
     errCopy: "复制失败",
     errPlay: "当前文件无法试听，可下载后用系统播放器打开",
     errGeneric: "语音识别失败",
@@ -80,26 +79,27 @@ const I18N = {
     hintUltra: "精简口语、理顺语句；粤语、上海话可转成普通话。",
     hintGsr: "结合语义理解润色，输出更贴近书面表达的文稿。",
     hintDiarize: "适合已录好的会议，自动标出发言人。",
+    reuseHint: "同一段音视频可切换模型再次转写。",
     speaker: (n) => `说话人${n}`,
   },
   en: {
     brand: "Speech to Text",
     badge: "Batch · non-streaming",
     source: "Source",
-    dropTitle: "Drop a file here",
-    dropHint: "Tap to choose. mp3 / wav / m4a / webm, up to 50MB.",
+    dropTitle: "Drop audio or video",
+    dropHint: "Tap to choose. mp3 / wav / m4a / mp4 and other media, up to 50MB.",
     record: "Start recording",
     stop: "Stop recording",
     copy: "Copy text",
-    download: "Download audio",
+    download: "Download",
     chooseFile: "Choose file",
     play: "Play",
     pause: "Pause",
-    idle: "Waiting for audio",
+    idle: "Waiting for media",
     result: "Transcript",
     placeholder: "Full text will appear here",
     pageTitle: "Speech to Text",
-    desc: "Non-streaming speech to text. Drop an audio file or record, then get the full transcript.",
+    desc: "Non-streaming speech to text. Drop audio or video, or record, then get the full transcript.",
     transcribing: "Transcribing…",
     recording: (sec) => `Recording ${sec}s`,
     recordingFile: "Recording",
@@ -110,11 +110,10 @@ const I18N = {
     errEmpty: "Audio is empty",
     errTimeout: "ASR request timed out",
     errNoContent: "No speech detected",
-    errFail: (status) => `ASR request failed (HTTP ${status})`,
     errNetwork: "Network error",
     errMic: "Microphone permission denied",
     errRecorder: "This browser cannot record audio",
-    errNoFile: "No usable audio file found",
+    errNoFile: "No usable audio or video file found",
     errCopy: "Copy failed",
     errPlay: "This file cannot be previewed. Download it and open in a system player.",
     errGeneric: "Speech recognition failed",
@@ -126,6 +125,7 @@ const I18N = {
     hintUltra: "Cleans fillers and smooths sentences. Cantonese and Shanghainese can become Mandarin.",
     hintGsr: "Uses semantic polish for a more written-style draft.",
     hintDiarize: "Best for recorded meetings. Labels speakers automatically.",
+    reuseHint: "Switch models to transcribe the same media again.",
     speaker: (n) => `Speaker ${n}`,
   },
 };
@@ -134,13 +134,46 @@ const CONTENT_TYPES = {
   mp3: "audio/mpeg",
   wav: "audio/wav",
   m4a: "audio/mp4",
-  mp4: "audio/mp4",
   aac: "audio/aac",
   ogg: "audio/ogg",
   flac: "audio/flac",
   pcm: "audio/pcm",
   webm: "audio/webm",
 };
+
+const VIDEO_TYPES = {
+  mp4: "video/mp4",
+  mov: "video/quicktime",
+  m4v: "video/x-m4v",
+  webm: "video/webm",
+  mkv: "video/x-matroska",
+  avi: "video/x-msvideo",
+  mpeg: "video/mpeg",
+  mpg: "video/mpeg",
+  "3gp": "video/3gpp",
+  ogv: "video/ogg",
+  ts: "video/mp2t",
+};
+
+const VIDEO_EXT = /^(mp4|mov|m4v|mkv|avi|mpeg|mpg|3gp|ogv|ts)$/;
+
+function resolveFormat(nameOrFormat) {
+  const raw = String(nameOrFormat || "mp3").toLowerCase();
+  const ext = raw.includes(".") ? raw.split(".").pop() : raw;
+  if (CONTENT_TYPES[ext] || VIDEO_TYPES[ext]) return ext;
+  return "mp3";
+}
+
+function isVideoAsset(blob, name) {
+  const type = ((blob && blob.type) || "").toLowerCase();
+  const filename = String(
+    name || (blob && blob.name) || ""
+  ).toLowerCase();
+  if (type.startsWith("video/")) return true;
+  if (type.startsWith("audio/")) return false;
+  const ext = filename.includes(".") ? filename.split(".").pop() : "";
+  return VIDEO_EXT.test(ext);
+}
 
 let currentLang = "en";
 let currentModelKey = "general";
@@ -207,12 +240,6 @@ function applyLang(lang, opts = {}) {
   syncModelUi();
 }
 
-function resolveFormat(nameOrFormat) {
-  const raw = String(nameOrFormat || "mp3").toLowerCase();
-  const ext = raw.includes(".") ? raw.split(".").pop() : raw;
-  return CONTENT_TYPES[ext] ? ext : "mp3";
-}
-
 function rawSpeaker(seg) {
   if (!seg || typeof seg !== "object") return "";
   const value =
@@ -241,13 +268,12 @@ function pickSegmentList(data) {
 
 function parseTranscriptionBody(data, diarize) {
   if (typeof data === "string") {
-    return { text: data, segments: [], duration: 0 };
+    return { text: data, segments: [] };
   }
   if (!data || typeof data !== "object") {
-    return { text: "", segments: [], duration: 0 };
+    return { text: "", segments: [] };
   }
 
-  const duration = Number(data.duration) || 0;
   const indexMap = new Map();
   const segments = (diarize ? pickSegmentList(data) : Array.isArray(data.segments) ? data.segments : [])
     .map((seg) => ({
@@ -275,7 +301,7 @@ function parseTranscriptionBody(data, diarize) {
       .join("\n");
   }
 
-  return { text, segments, duration };
+  return { text, segments };
 }
 
 function pickErrorFields(data) {
@@ -317,10 +343,6 @@ function formatHttpError(status, data) {
   return parts.join(" · ");
 }
 
-function extractAsrError(data, status) {
-  return formatHttpError(status, data);
-}
-
 async function postTranscription(file, filename, options = {}) {
   const form = new FormData();
   form.append("file", file, filename);
@@ -334,6 +356,14 @@ async function postTranscription(file, filename, options = {}) {
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), ASR_REQUEST_TIMEOUT_MS);
+  const onCancel = () => controller.abort();
+  if (options.signal) {
+    if (options.signal.aborted) {
+      clearTimeout(timer);
+      throw new Error("CANCELLED");
+    }
+    options.signal.addEventListener("abort", onCancel, { once: true });
+  }
 
   try {
     const response = await fetch(ASR_URL, {
@@ -356,17 +386,24 @@ async function postTranscription(file, filename, options = {}) {
     return { status: response.status, data };
   } catch (err) {
     if (err.name === "AbortError") {
+      if (options.signal && options.signal.aborted) {
+        throw new Error("CANCELLED");
+      }
       throw new Error("TIMEOUT");
     }
     err.network = true;
     throw err;
   } finally {
     clearTimeout(timer);
+    if (options.signal) options.signal.removeEventListener("abort", onCancel);
   }
 }
 
-async function transcribe(file, filename) {
-  const verboseResp = await postTranscription(file, filename, { verbose: true });
+async function transcribe(file, filename, signal) {
+  const verboseResp = await postTranscription(file, filename, {
+    verbose: true,
+    signal,
+  });
 
   if (verboseResp.status === 200) {
     const parsed = parseTranscriptionBody(verboseResp.data, currentModel().diarize);
@@ -375,7 +412,10 @@ async function transcribe(file, filename) {
     }
   }
 
-  const plainResp = await postTranscription(file, filename, { verbose: false });
+  const plainResp = await postTranscription(file, filename, {
+    verbose: false,
+    signal,
+  });
 
   if (plainResp.status !== 200) {
     const last = formatHttpError(plainResp.status, plainResp.data);
@@ -444,6 +484,7 @@ function localizeError(err) {
     return `${t("errTimeout")} · ${Math.round(ASR_REQUEST_TIMEOUT_MS / 1000)}s`;
   }
   if (code === "EMPTY") return t("errEmpty");
+  if (code === "CANCELLED") return "";
   if (typeof code === "string" && code.startsWith("NO_CONTENT")) {
     return code === "NO_CONTENT" ? t("errNoContent") : `${t("errNoContent")} · ${code.slice("NO_CONTENT".length).replace(/^ · /, "")}`;
   }
@@ -460,9 +501,8 @@ function pickDroppedFile(dt) {
     const type = (f.type || "").toLowerCase();
     return (
       type.startsWith("audio/") ||
-      type === "video/webm" ||
-      type === "video/mp4" ||
-      /\.(mp3|wav|m4a|aac|ogg|flac|pcm|webm|mp4|mpeg|mpga)$/.test(name)
+      type.startsWith("video/") ||
+      /\.(mp3|wav|m4a|aac|ogg|flac|pcm|webm|mp4|mpeg|mpga|mov|m4v|mkv|avi|mpg|3gp|ogv|ts)$/.test(name)
     );
   });
   return audio || files[0] || null;
@@ -500,21 +540,29 @@ function renderResult(root, parsed) {
   });
 }
 
-async function recognizeBlob(blob, nameHint, ui) {
+async function recognizeBlob(blob, nameHint, ui, signal) {
   if (!blob || !blob.size) {
     throw new Error("EMPTY");
   }
 
-  const format = resolveFormat(nameHint || blob.type);
-  const filename = `audio.${format}`;
-  const contentType = CONTENT_TYPES[format] || blob.type || "audio/mpeg";
+  const origName = (blob instanceof File && blob.name) || nameHint || "";
+  const format = resolveFormat(origName || blob.type);
+  const video = isVideoAsset(blob, origName);
+  const mime =
+    blob.type ||
+    (video ? VIDEO_TYPES[format] || "video/mp4" : CONTENT_TYPES[format] || "audio/mpeg");
+  const filename = /\.[a-z0-9]+$/i.test(origName)
+    ? origName.split(/[/\\]/).pop()
+    : `${video ? "video" : "audio"}.${format}`;
   const file =
     blob instanceof File
-      ? blob
-      : new File([blob], filename, { type: contentType });
+      ? blob.type
+        ? blob
+        : new File([blob], filename, { type: mime })
+      : new File([blob], filename, { type: mime });
 
   setStatus(ui.status, `${t("transcribing")} · ${t(currentModel().labelKey)}`);
-  return transcribe(file, file.name || filename);
+  return transcribe(file, file.name || filename, signal);
 }
 
 function initAsrPage() {
@@ -554,6 +602,10 @@ function initAsrPage() {
   let dragDepth = 0;
   let mediaUrl = "";
   let mediaName = "";
+  let sourceBlob = null;
+  let sourceName = "";
+  let transcribeAbort = null;
+  let jobId = 0;
   let activePlayer = audioEl;
   let seeking = false;
 
@@ -574,7 +626,7 @@ function initAsrPage() {
 
   modelBtns.forEach((btn) => {
     btn.addEventListener("click", () => {
-      if (busy) return;
+      if (recorder) return;
       const next = resolveModel(btn.getAttribute("data-asr-model"));
       if (next.key === currentModelKey) return;
       currentModelKey = next.key;
@@ -584,6 +636,7 @@ function initAsrPage() {
         /* ignore */
       }
       syncModelUi();
+      if (sourceBlob) runTranscribe();
     });
   });
 
@@ -600,17 +653,14 @@ function initAsrPage() {
 
   const setActivePlayer = (el) => {
     [audioEl, videoEl].forEach((node) => {
-      if (!node) return;
+      if (!node || node === el) return;
       node.pause();
-      node.classList.toggle("is-on", node === el);
+      node.classList.remove("is-on");
+      node.removeAttribute("src");
+      node.load();
     });
+    if (el) el.classList.add("is-on");
     activePlayer = el;
-  };
-
-  const isVideoFile = (blob, name) => {
-    const type = (blob.type || "").toLowerCase();
-    const filename = (name || "").toLowerCase();
-    return type.startsWith("video/") || /\.(mp4|mov|m4v|webm)$/.test(filename);
   };
 
   const attachMedia = (blob, name) => {
@@ -618,7 +668,7 @@ function initAsrPage() {
     if (mediaUrl) URL.revokeObjectURL(mediaUrl);
     mediaUrl = URL.createObjectURL(blob);
     mediaName = name || t("unnamed");
-    const useVideo = isVideoFile(blob, mediaName);
+    const useVideo = isVideoAsset(blob, mediaName);
     const el = useVideo ? videoEl : audioEl;
     if (!el) return;
     setActivePlayer(el);
@@ -643,28 +693,39 @@ function initAsrPage() {
   const setBusy = (next) => {
     busy = next;
     recBtn.disabled = next && !recorder;
-    fileInput.disabled = next;
     copyBtn.disabled = next;
-    modelBtns.forEach((btn) => {
-      btn.disabled = next;
-    });
-    drop.classList.toggle("is-busy", next && !recorder);
   };
 
-  const runFile = async (file) => {
-    if (!file || busy) return;
-    attachMedia(file, file.name || t("unnamed"));
+  const runTranscribe = async () => {
+    if (!sourceBlob || recorder) return;
+    const id = ++jobId;
+    if (transcribeAbort) transcribeAbort.abort();
+    const ac = new AbortController();
+    transcribeAbort = ac;
     setBusy(true);
     try {
-      const parsed = await recognizeBlob(file, file.name, ui);
+      const parsed = await recognizeBlob(sourceBlob, sourceName, ui, ac.signal);
+      if (id !== jobId) return;
       renderResult(root, parsed);
       setStatus(status, parsed.segments.length ? t("doneSeg") : t("done"), "ok");
     } catch (err) {
+      if (id !== jobId || (err && err.message === "CANCELLED")) return;
       console.error("recognize error", err);
       setStatus(status, localizeError(err), "error");
     } finally {
-      setBusy(false);
+      if (id === jobId) {
+        setBusy(false);
+        transcribeAbort = null;
+      }
     }
+  };
+
+  const runFile = async (file) => {
+    if (!file || recorder) return;
+    sourceBlob = file;
+    sourceName = file.name || t("unnamed");
+    attachMedia(file, sourceName);
+    await runTranscribe();
   };
 
   recBtn.addEventListener("click", async () => {
@@ -707,18 +768,10 @@ function initAsrPage() {
         chunks = [];
 
         const recName = `${t("recordingFile")}.${recorderExt(mimeType)}`;
+        sourceBlob = blob;
+        sourceName = recName;
         attachMedia(blob, recName);
-        setBusy(true);
-        try {
-          const parsed = await recognizeBlob(blob, recorderExt(mimeType), ui);
-          renderResult(root, parsed);
-          setStatus(status, parsed.segments.length ? t("doneSeg") : t("done"), "ok");
-        } catch (err) {
-          console.error("recognize error", err);
-          setStatus(status, localizeError(err), "error");
-        } finally {
-          setBusy(false);
-        }
+        await runTranscribe();
       });
 
       recorder.start(250);
@@ -805,6 +858,22 @@ function initAsrPage() {
         }
       } else {
         activePlayer.pause();
+      }
+    });
+  }
+
+  if (videoEl) {
+    videoEl.addEventListener("click", async () => {
+      if (!videoEl.src || activePlayer !== videoEl) return;
+      if (videoEl.paused) {
+        try {
+          await videoEl.play();
+        } catch (err) {
+          console.error("play error", err);
+          setStatus(status, t("errPlay"), "error");
+        }
+      } else {
+        videoEl.pause();
       }
     });
   }
