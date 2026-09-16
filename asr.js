@@ -63,7 +63,6 @@ const I18N = {
     copied: "已复制全文",
     errEmpty: "音频数据为空",
     errTimeout: "ASR 请求超时",
-    errNoContent: "未识别到有效内容",
     errNetwork: "网络错误",
     errMic: "无法打开麦克风",
     errRecorder: "当前浏览器不支持录音",
@@ -113,7 +112,6 @@ const I18N = {
     copied: "Copied",
     errEmpty: "Audio is empty",
     errTimeout: "ASR request timed out",
-    errNoContent: "No speech detected",
     errNetwork: "Network error",
     errMic: "Microphone permission denied",
     errRecorder: "This browser cannot record audio",
@@ -456,10 +454,10 @@ async function transcribe(file, filename, signal) {
   });
 
   if (verboseResp.status === 200) {
-    const parsed = parseTranscriptionBody(verboseResp.data, currentModel().diarize);
-    if (parsed.text || parsed.segments.length) {
-      return attachHttpMeta(parsed, verboseResp);
-    }
+    return attachHttpMeta(
+      parseTranscriptionBody(verboseResp.data, currentModel().diarize),
+      verboseResp
+    );
   }
 
   const plainResp = await postTranscription(file, filename, {
@@ -469,7 +467,7 @@ async function transcribe(file, filename, signal) {
 
   if (plainResp.status !== 200) {
     const last = formatHttpError(plainResp.status, plainResp.data);
-    if (verboseResp.status !== 200 && verboseResp.status !== plainResp.status) {
+    if (verboseResp.status !== plainResp.status) {
       throwHttp(
         `${last} | verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`,
         plainResp.httpMs,
@@ -479,15 +477,10 @@ async function transcribe(file, filename, signal) {
     throwHttp(last, plainResp.httpMs, plainResp.requestId);
   }
 
-  const parsed = parseTranscriptionBody(plainResp.data, currentModel().diarize);
-  if (!parsed.text && !parsed.segments.length) {
-    const extra =
-      verboseResp.status !== 200
-        ? ` · verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`
-        : "";
-    throwHttp(`NO_CONTENT${extra}`, plainResp.httpMs, plainResp.requestId);
-  }
-  return attachHttpMeta(parsed, plainResp);
+  return attachHttpMeta(
+    parseTranscriptionBody(plainResp.data, currentModel().diarize),
+    plainResp
+  );
 }
 
 function formatClock(sec) {
@@ -552,9 +545,6 @@ function localizeError(err) {
   }
   if (code === "EMPTY") return t("errEmpty");
   if (code === "CANCELLED") return "";
-  if (typeof code === "string" && code.startsWith("NO_CONTENT")) {
-    return code === "NO_CONTENT" ? t("errNoContent") : `${t("errNoContent")} · ${code.slice("NO_CONTENT".length).replace(/^ · /, "")}`;
-  }
   if (err && err.network) {
     return `${t("errNetwork")} · ${err.message || t("errGeneric")}`;
   }
