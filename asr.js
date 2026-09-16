@@ -406,8 +406,9 @@ async function postTranscription(file, filename, options = {}) {
     return {
       status: response.status,
       data,
+      raw,
       httpMs: stamp(),
-      requestId: pickRequestId(response.headers),
+      requestId: pickRequestId(response.headers, data),
     };
   } catch (err) {
     stamp(err);
@@ -429,9 +430,32 @@ async function postTranscription(file, filename, options = {}) {
   }
 }
 
-function pickRequestId(headers) {
-  if (!headers || typeof headers.get !== "function") return "";
-  return String(headers.get("x-request-id") || "").trim();
+function formatResponseBody(data, raw) {
+  if (data && typeof data === "object") {
+    try {
+      return JSON.stringify(data, null, 2);
+    } catch {
+      /* ignore */
+    }
+  }
+  if (raw != null && String(raw) !== "") return String(raw);
+  if (data == null || data === "") return "";
+  return String(data);
+}
+
+function pickRequestId(headers, data) {
+  if (headers && typeof headers.get === "function") {
+    const fromHeader = String(headers.get("x-request-id") || "").trim();
+    if (fromHeader) return fromHeader;
+  }
+  if (!data || typeof data !== "object") return "";
+  const nested = data.error && typeof data.error === "object" ? data.error : null;
+  const fromBody =
+    data["x-request-id"] ||
+    data.request_id ||
+    data.requestId ||
+    (nested && (nested["x-request-id"] || nested.request_id || nested.requestId));
+  return String(fromBody || "").trim();
 }
 
 function attachHttpMeta(parsed, resp) {
@@ -440,10 +464,11 @@ function attachHttpMeta(parsed, resp) {
   return parsed;
 }
 
-function throwHttp(message, httpMs, requestId) {
+function throwHttp(message, meta = {}) {
   const err = new Error(message);
-  err.httpMs = Number(httpMs) || 0;
-  err.requestId = String(requestId || "").trim();
+  err.httpMs = Number(meta.httpMs) || 0;
+  err.requestId = String(meta.requestId || "").trim();
+  err.body = String(meta.body || "");
   throw err;
 }
 
@@ -467,14 +492,20 @@ async function transcribe(file, filename, signal) {
 
   if (plainResp.status !== 200) {
     const last = formatHttpError(plainResp.status, plainResp.data);
-    if (verboseResp.status !== plainResp.status) {
-      throwHttp(
-        `${last} | verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`,
-        plainResp.httpMs,
-        plainResp.requestId
-      );
+    const bodies = [formatResponseBody(plainResp.data, plainResp.raw)];
+    let message = last;
+    if (verboseResp.status !== 200 && verboseResp.status !== plainResp.status) {
+      message = `${last} | verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`;
+      const verboseBody = formatResponseBody(verboseResp.data, verboseResp.raw);
+      if (verboseBody && verboseBody !== bodies[0]) {
+        bodies.push(`verbose HTTP ${verboseResp.status || "?"}\n${verboseBody}`);
+      }
     }
-    throwHttp(last, plainResp.httpMs, plainResp.requestId);
+    throwHttp(message, {
+      httpMs: plainResp.httpMs || verboseResp.httpMs,
+      requestId: plainResp.requestId || verboseResp.requestId,
+      body: bodies.filter(Boolean).join("\n\n"),
+    });
   }
 
   return attachHttpMeta(
@@ -565,10 +596,11 @@ function pickDroppedFile(dt) {
   return audio || files[0] || null;
 }
 
-function renderResult(root, parsed) {
+function renderResult(root, parsed, opts = {}) {
   const textEl = root.querySelector("[data-asr-text]");
   const segsEl = root.querySelector("[data-asr-segments]");
   textEl.value = parsed.text || "";
+  textEl.classList.toggle("is-error", Boolean(opts.error));
   segsEl.replaceChildren();
 
   if (!parsed.segments.length) {
@@ -830,6 +862,7 @@ function initAsrPage() {
     } catch (err) {
       if (id !== jobId || (err && err.message === "CANCELLED")) return;
       console.error("recognize error", err);
+      renderResult(root, { text: (err && err.body) || "", segments: [] }, { error: true });
       renderHttpTime(root, err && err.httpMs, 0, err && err.requestId);
       setStatus(status, localizeError(err), "error");
     } finally {
