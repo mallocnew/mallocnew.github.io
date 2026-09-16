@@ -81,6 +81,10 @@ const I18N = {
     hintDiarize: "适合已录好的会议，自动标出发言人。",
     reuseHint: "同一段音视频可切换模型再次转写。",
     speaker: (n) => `说话人${n}`,
+    rawText: "原文",
+    refinedText: "润色",
+    httpTime: "HTTP 耗时",
+    requestIdCopied: "已复制 x-request-id",
   },
   en: {
     brand: "Speech to Text",
@@ -127,6 +131,10 @@ const I18N = {
     hintDiarize: "Best for recorded meetings. Labels speakers automatically.",
     reuseHint: "Switch models to transcribe the same media again.",
     speaker: (n) => `Speaker ${n}`,
+    rawText: "Raw",
+    refinedText: "Refined",
+    httpTime: "HTTP time",
+    requestIdCopied: "Copied x-request-id",
   },
 };
 
@@ -268,21 +276,28 @@ function pickSegmentList(data) {
 
 function parseTranscriptionBody(data, diarize) {
   if (typeof data === "string") {
-    return { text: data, segments: [] };
+    return { text: data, segments: [], duration: 0 };
   }
   if (!data || typeof data !== "object") {
-    return { text: "", segments: [] };
+    return { text: "", segments: [], duration: 0 };
   }
 
   const indexMap = new Map();
   const segments = (diarize ? pickSegmentList(data) : Array.isArray(data.segments) ? data.segments : [])
-    .map((seg) => ({
-      start: Number(seg.start) || 0,
-      end: Number(seg.end) || 0,
-      text: String(seg.text || "").trim(),
-      speaker: diarize ? speakerLabel(rawSpeaker(seg), indexMap) : "",
-    }))
-    .filter((seg) => seg.text && seg.end > seg.start);
+    .map((seg) => {
+      const text = String(seg.text || "").trim();
+      const rawText = String(seg.raw_text || "").trim();
+      const refinedText = String(seg.refined_text || "").trim();
+      return {
+        start: Number(seg.start) || 0,
+        end: Number(seg.end) || 0,
+        text: text || refinedText || rawText,
+        rawText,
+        refinedText,
+        speaker: diarize ? speakerLabel(rawSpeaker(seg), indexMap) : "",
+      };
+    })
+    .filter((seg) => (seg.text || seg.rawText || seg.refinedText) && seg.end > seg.start);
 
   let text = String(data.text || "");
   if (diarize && segments.some((seg) => seg.speaker)) {
@@ -301,7 +316,7 @@ function parseTranscriptionBody(data, diarize) {
       .join("\n");
   }
 
-  return { text, segments };
+  return { text, segments, duration: Number(data.duration) || 0 };
 }
 
 function pickErrorFields(data) {
@@ -365,6 +380,13 @@ async function postTranscription(file, filename, options = {}) {
     options.signal.addEventListener("abort", onCancel, { once: true });
   }
 
+  const started = performance.now();
+  const stamp = (err) => {
+    const httpMs = performance.now() - started;
+    if (err && typeof err === "object") err.httpMs = httpMs;
+    return httpMs;
+  };
+
   try {
     const response = await fetch(ASR_URL, {
       method: "POST",
@@ -383,13 +405,23 @@ async function postTranscription(file, filename, options = {}) {
         data = raw;
       }
     }
-    return { status: response.status, data };
+    return {
+      status: response.status,
+      data,
+      httpMs: stamp(),
+      requestId: pickRequestId(response.headers),
+    };
   } catch (err) {
+    stamp(err);
     if (err.name === "AbortError") {
       if (options.signal && options.signal.aborted) {
-        throw new Error("CANCELLED");
+        const cancel = new Error("CANCELLED");
+        cancel.httpMs = err.httpMs;
+        throw cancel;
       }
-      throw new Error("TIMEOUT");
+      const timeout = new Error("TIMEOUT");
+      timeout.httpMs = err.httpMs;
+      throw timeout;
     }
     err.network = true;
     throw err;
@@ -397,6 +429,24 @@ async function postTranscription(file, filename, options = {}) {
     clearTimeout(timer);
     if (options.signal) options.signal.removeEventListener("abort", onCancel);
   }
+}
+
+function pickRequestId(headers) {
+  if (!headers || typeof headers.get !== "function") return "";
+  return String(headers.get("x-request-id") || "").trim();
+}
+
+function attachHttpMeta(parsed, resp) {
+  parsed.httpMs = Number(resp && resp.httpMs) || 0;
+  parsed.requestId = String((resp && resp.requestId) || "").trim();
+  return parsed;
+}
+
+function throwHttp(message, httpMs, requestId) {
+  const err = new Error(message);
+  err.httpMs = Number(httpMs) || 0;
+  err.requestId = String(requestId || "").trim();
+  throw err;
 }
 
 async function transcribe(file, filename, signal) {
@@ -408,7 +458,7 @@ async function transcribe(file, filename, signal) {
   if (verboseResp.status === 200) {
     const parsed = parseTranscriptionBody(verboseResp.data, currentModel().diarize);
     if (parsed.text || parsed.segments.length) {
-      return parsed;
+      return attachHttpMeta(parsed, verboseResp);
     }
   }
 
@@ -420,9 +470,13 @@ async function transcribe(file, filename, signal) {
   if (plainResp.status !== 200) {
     const last = formatHttpError(plainResp.status, plainResp.data);
     if (verboseResp.status !== 200 && verboseResp.status !== plainResp.status) {
-      throw new Error(`${last} | verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`);
+      throwHttp(
+        `${last} | verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`,
+        plainResp.httpMs,
+        plainResp.requestId
+      );
     }
-    throw new Error(last);
+    throwHttp(last, plainResp.httpMs, plainResp.requestId);
   }
 
   const parsed = parseTranscriptionBody(plainResp.data, currentModel().diarize);
@@ -431,9 +485,9 @@ async function transcribe(file, filename, signal) {
       verboseResp.status !== 200
         ? ` · verbose ${formatHttpError(verboseResp.status, verboseResp.data)}`
         : "";
-    throw new Error(`NO_CONTENT${extra}`);
+    throwHttp(`NO_CONTENT${extra}`, plainResp.httpMs, plainResp.requestId);
   }
-  return parsed;
+  return attachHttpMeta(parsed, plainResp);
 }
 
 function formatClock(sec) {
@@ -446,6 +500,19 @@ function formatBytes(n) {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function formatHttpMs(ms) {
+  const n = Math.max(0, Number(ms) || 0);
+  if (n < 1000) return `${Math.round(n)} ms`;
+  return `${(n / 1000).toFixed(3)} s`;
+}
+
+function formatRtf(httpMs, durationSec) {
+  const dur = Number(durationSec) || 0;
+  const ms = Number(httpMs) || 0;
+  if (dur <= 0 || ms <= 0) return "";
+  return `${(ms / 1000 / dur).toFixed(2)}×`;
 }
 
 function formatTime(sec) {
@@ -536,8 +603,65 @@ function renderResult(root, parsed) {
     body.textContent = seg.text;
     li.dataset.start = String(seg.start);
     li.append(time, body);
+    const extras = [
+      ["rawText", seg.rawText],
+      ["refinedText", seg.refinedText],
+    ].filter(([, value]) => value);
+    if (extras.length) {
+      const extra = document.createElement("div");
+      extra.className = "seg-extra";
+      extras.forEach(([key, value]) => {
+        const line = document.createElement("div");
+        line.className = `seg-line seg-${key}`;
+        const label = document.createElement("span");
+        label.className = "seg-k";
+        label.setAttribute("data-i18n", key);
+        label.textContent = t(key);
+        const val = document.createElement("span");
+        val.className = "seg-v";
+        val.textContent = value;
+        line.append(label, val);
+        extra.append(line);
+      });
+      li.append(extra);
+    }
     segsEl.append(li);
   });
+}
+
+function renderHttpTime(root, httpMs, durationSec, requestId) {
+  const wrap = root.querySelector("[data-asr-http]");
+  const val = root.querySelector("[data-asr-http-val]");
+  const rid = root.querySelector("[data-asr-request-id]");
+  if (!wrap || !val) return;
+  const ms = Number(httpMs) || 0;
+  const id = String(requestId || "").trim();
+  if (ms <= 0 && !id) {
+    wrap.hidden = true;
+    val.textContent = "";
+    if (rid) {
+      rid.hidden = true;
+      rid.textContent = "";
+      delete rid.dataset.id;
+    }
+    wrap.removeAttribute("title");
+    return;
+  }
+  const parts = [];
+  if (ms > 0) {
+    parts.push(formatHttpMs(ms));
+    const rtf = formatRtf(ms, durationSec);
+    if (rtf) parts.push(`RTF ${rtf}`);
+  }
+  val.textContent = parts.join(" · ");
+  if (rid) {
+    rid.hidden = !id;
+    rid.textContent = id ? `x-request-id ${id}` : "";
+    if (id) rid.dataset.id = id;
+    else delete rid.dataset.id;
+  }
+  wrap.title = [ms > 0 ? `${Math.round(ms)} ms` : "", id].filter(Boolean).join(" · ");
+  wrap.hidden = false;
 }
 
 async function recognizeBlob(blob, nameHint, ui, signal) {
@@ -703,14 +827,20 @@ function initAsrPage() {
     const ac = new AbortController();
     transcribeAbort = ac;
     setBusy(true);
+    renderHttpTime(root, 0);
     try {
       const parsed = await recognizeBlob(sourceBlob, sourceName, ui, ac.signal);
       if (id !== jobId) return;
       renderResult(root, parsed);
+      const duration =
+        parsed.duration ||
+        (activePlayer && Number.isFinite(activePlayer.duration) ? activePlayer.duration : 0);
+      renderHttpTime(root, parsed.httpMs, duration, parsed.requestId);
       setStatus(status, parsed.segments.length ? t("doneSeg") : t("done"), "ok");
     } catch (err) {
       if (id !== jobId || (err && err.message === "CANCELLED")) return;
       console.error("recognize error", err);
+      renderHttpTime(root, err && err.httpMs, 0, err && err.requestId);
       setStatus(status, localizeError(err), "error");
     } finally {
       if (id === jobId) {
@@ -932,6 +1062,22 @@ function initAsrPage() {
     activePlayer.currentTime = start;
     activePlayer.play().catch(() => {});
   });
+
+  const requestIdEl = root.querySelector("[data-asr-request-id]");
+  if (requestIdEl) {
+    requestIdEl.addEventListener("click", async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = requestIdEl.dataset.id || "";
+      if (!id) return;
+      try {
+        await navigator.clipboard.writeText(id);
+        setStatus(status, t("requestIdCopied"), "ok");
+      } catch {
+        setStatus(status, t("errCopy"), "error");
+      }
+    });
+  }
 
   copyBtn.addEventListener("click", async () => {
     const text = root.querySelector("[data-asr-text]").value;

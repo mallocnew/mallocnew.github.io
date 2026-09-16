@@ -145,6 +145,33 @@
         text-transform: uppercase;
         color: var(--muted);
       }
+      .http-time {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.12rem;
+        color: var(--accent);
+        font-size: 0.72rem;
+        font-weight: 650;
+        font-variant-numeric: tabular-nums;
+        max-width: min(22rem, 70%);
+        text-align: right;
+      }
+      .http-time[hidden] { display: none; }
+      .http-k {
+        color: var(--muted);
+        font-weight: 500;
+        margin-right: 0.35rem;
+      }
+      .http-rid {
+        color: var(--muted);
+        font-size: 0.64rem;
+        font-weight: 500;
+        line-height: 1.35;
+        word-break: break-all;
+        cursor: pointer;
+      }
+      .http-rid[hidden] { display: none; }
       .panel-b { padding: 0.9rem; }
       .models {
         display: grid;
@@ -363,6 +390,28 @@
         color: var(--ok);
       }
       .seg-text { color: #d7deec; font-size: 0.92rem; }
+      .seg-extra {
+        display: grid;
+        gap: 0.32rem;
+        margin-top: 0.45rem;
+        padding-top: 0.4rem;
+        border-top: 1px solid var(--line);
+      }
+      .seg-line {
+        display: grid;
+        gap: 0.06rem;
+      }
+      .seg-k {
+        color: var(--muted);
+        font-size: 0.68rem;
+        letter-spacing: 0.02em;
+      }
+      .seg-v {
+        color: #b7c2d6;
+        font-size: 0.84rem;
+        line-height: 1.45;
+      }
+      .seg-rawText .seg-v { font-style: italic; }
       @media (max-width: 1024px) {
         .media.is-on {
           position: sticky;
@@ -443,7 +492,16 @@
         </section>
 
         <section class="panel">
-          <div class="panel-h"><h2 data-i18n="result">Transcript</h2></div>
+          <div class="panel-h">
+            <h2 data-i18n="result">Transcript</h2>
+            <span class="http-time" data-asr-http hidden>
+              <span>
+                <span class="http-k" data-i18n="httpTime">HTTP time</span>
+                <span data-asr-http-val></span>
+              </span>
+              <span class="http-rid" data-asr-request-id hidden title="x-request-id"></span>
+            </span>
+          </div>
           <div class="panel-b">
             <textarea data-asr-text data-i18n-placeholder="placeholder" placeholder="Full text will appear here"></textarea>
             <ol class="segments" data-asr-segments hidden></ol>
