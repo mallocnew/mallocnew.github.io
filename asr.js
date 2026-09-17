@@ -46,6 +46,8 @@ const I18N = {
     stop: "停止录音",
     copy: "复制全文",
     download: "下载文件",
+    exportSrt: "导出字幕",
+    errNoSubs: "没有可导出的字幕",
     chooseFile: "选择文件",
     play: "试听",
     pause: "暂停",
@@ -95,6 +97,8 @@ const I18N = {
     stop: "Stop recording",
     copy: "Copy text",
     download: "Download",
+    exportSrt: "Export subtitles",
+    errNoSubs: "No subtitles to export",
     chooseFile: "Choose file",
     play: "Play",
     pause: "Pause",
@@ -546,6 +550,67 @@ function formatTime(sec) {
   return `${String(m).padStart(2, "0")}:${r}`;
 }
 
+function pad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function formatSrtTime(sec) {
+  const msTotal = Math.max(0, Math.round((Number(sec) || 0) * 1000));
+  const h = Math.floor(msTotal / 3600000);
+  const m = Math.floor((msTotal % 3600000) / 60000);
+  const s = Math.floor((msTotal % 60000) / 1000);
+  const ms = msTotal % 1000;
+  return `${pad2(h)}:${pad2(m)}:${pad2(s)},${String(ms).padStart(3, "0")}`;
+}
+
+function fileStem(name) {
+  const base = String(name || "").split(/[/\\]/).pop() || "transcript";
+  return base.replace(/\.[a-z0-9]+$/i, "") || "transcript";
+}
+
+function recordingFilename(mime, when = new Date()) {
+  const stamp = `${when.getFullYear()}${pad2(when.getMonth() + 1)}${pad2(when.getDate())}-${pad2(when.getHours())}${pad2(when.getMinutes())}${pad2(when.getSeconds())}`;
+  return `${t("recordingFile")}-${stamp}.${recorderExt(mime)}`;
+}
+
+function cueBody(seg) {
+  const text = String(seg && seg.text ? seg.text : "").trim();
+  if (!seg || !seg.speaker) return text;
+  const sep = currentLang === "zh" ? "：" : ": ";
+  return `${seg.speaker}${sep}${text}`;
+}
+
+function subtitleCues(parsed, fallbackDuration) {
+  const segs = parsed && Array.isArray(parsed.segments) ? parsed.segments : [];
+  const timed = segs.filter((seg) => String(seg.text || "").trim());
+  if (timed.length) return timed;
+  const text = String((parsed && parsed.text) || "").trim();
+  if (!text) return [];
+  return [{ start: 0, end: Math.max(Number(fallbackDuration) || 0, 1), text, speaker: "" }];
+}
+
+function buildSrt(cues) {
+  return cues
+    .map((seg, i) => {
+      const start = Number(seg.start) || 0;
+      let end = Number(seg.end) || 0;
+      if (end <= start) end = start + 0.5;
+      return `${i + 1}\n${formatSrtTime(start)} --> ${formatSrtTime(end)}\n${cueBody(seg)}\n`;
+    })
+    .join("\n");
+}
+
+function downloadBlob(filename, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.append(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 function pickRecorderMime() {
   const types = [
     "audio/webm;codecs=opus",
@@ -727,6 +792,7 @@ function initAsrPage() {
   const recBtn = root.querySelector("[data-asr-record]");
   const fileInput = root.querySelector("[data-asr-file]");
   const copyBtn = root.querySelector("[data-asr-copy]");
+  const srtBtn = root.querySelector("[data-asr-srt]");
   const downloadBtn = root.querySelector("[data-asr-download]");
   const drop = root.querySelector("[data-asr-drop]");
   const filechip = root.querySelector("[data-asr-filechip]");
@@ -754,6 +820,7 @@ function initAsrPage() {
   let jobId = 0;
   let activePlayer = audioEl;
   let seeking = false;
+  let lastCues = [];
 
   document.querySelectorAll("[data-lang]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -836,10 +903,15 @@ function initAsrPage() {
     if (clock) clock.textContent = "00:00 / 00:00";
   };
 
+  const syncSrtBtn = () => {
+    if (srtBtn) srtBtn.disabled = busy || !lastCues.length;
+  };
+
   const setBusy = (next) => {
     busy = next;
     recBtn.disabled = next && !recorder;
     copyBtn.disabled = next;
+    syncSrtBtn();
   };
 
   const runTranscribe = async () => {
@@ -848,6 +920,7 @@ function initAsrPage() {
     if (transcribeAbort) transcribeAbort.abort();
     const ac = new AbortController();
     transcribeAbort = ac;
+    lastCues = [];
     setBusy(true);
     renderHttpTime(root, 0);
     try {
@@ -857,11 +930,13 @@ function initAsrPage() {
       const duration =
         parsed.duration ||
         (activePlayer && Number.isFinite(activePlayer.duration) ? activePlayer.duration : 0);
+      lastCues = subtitleCues(parsed, duration);
       renderHttpTime(root, parsed.httpMs, duration, parsed.requestId);
       setStatus(status, parsed.segments.length ? t("doneSeg") : t("done"), "ok");
     } catch (err) {
       if (id !== jobId || (err && err.message === "CANCELLED")) return;
       console.error("recognize error", err);
+      lastCues = [];
       renderResult(root, { text: (err && err.body) || "", segments: [] }, { error: true });
       renderHttpTime(root, err && err.httpMs, 0, err && err.requestId);
       setStatus(status, localizeError(err), "error");
@@ -920,7 +995,7 @@ function initAsrPage() {
         const blob = new Blob(chunks, { type: mimeType });
         chunks = [];
 
-        const recName = `${t("recordingFile")}.${recorderExt(mimeType)}`;
+        const recName = recordingFilename(mimeType, new Date(recStart || Date.now()));
         sourceBlob = blob;
         sourceName = recName;
         attachMedia(blob, recName);
@@ -1099,6 +1174,18 @@ function initAsrPage() {
       } catch {
         setStatus(status, t("errCopy"), "error");
       }
+    });
+  }
+
+  if (srtBtn) {
+    srtBtn.addEventListener("click", () => {
+      if (!lastCues.length) {
+        setStatus(status, t("errNoSubs"), "error");
+        return;
+      }
+      const srt = buildSrt(lastCues);
+      const name = `${fileStem(mediaName || sourceName)}.srt`;
+      downloadBlob(name, new Blob(["\uFEFF" + srt], { type: "application/x-subrip;charset=utf-8" }));
     });
   }
 
